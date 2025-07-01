@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSINT Nexus - Open Source Intelligence Platform</title>
+    <title>OSINT Hub - Professional Intelligence Tools Directory</title>
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -14,771 +16,1241 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Custom CSS -->
     <style>
         :root {
-            --primary-color: #1e3a8a;
-            --secondary-color: #1f2937;
-            --accent-color: #3b82f6;
-            --success-color: #059669;
-            --warning-color: #d97706;
-            --danger-color: #dc2626;
-            --light-bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-dark: #1f2937;
-            --text-muted: #6b7280;
-            --border-color: #e5e7eb;
+            /* Light theme */
+            --primary-color: #1a365d;
+            --primary-light: #2d5a87;
+            --secondary-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --accent-light: #4299e1;
+            --success-color: #38a169;
+            --warning-color: #ed8936;
+            --danger-color: #e53e3e;
+            --info-color: #3182ce;
+            
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-tertiary: #edf2f7;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'Space Mono', 'Courier New', monospace;
+        }
+
+        [data-theme="dark"] {
+            /* Dark theme */
+            --primary-color: #3182ce;
+            --primary-light: #4299e1;
+            --secondary-color: #2d3748;
+            --accent-color: #63b3ed;
+            --accent-light: #90cdf4;
+            --success-color: #68d391;
+            --warning-color: #fbb02a;
+            --danger-color: #fc8181;
+            --info-color: #63b3ed;
+            
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-tertiary: #4a5568;
+            --text-primary: #f7fafc;
+            --text-secondary: #e2e8f0;
+            --text-muted: #a0aec0;
+            --border-color: #4a5568;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--light-bg);
-            color: var(--text-dark);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: var(--font-primary);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
         }
 
-        .navbar-dark {
-            background-color: var(--primary-color) !important;
-            border-bottom: 3px solid var(--accent-color);
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-            color: white !important;
-        }
-
-        .navbar-nav .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: white !important;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-header {
-            background-color: var(--light-bg);
+        /* Header */
+        .header {
+            background: var(--bg-primary);
             border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            color: var(--text-dark);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .btn-primary {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            transition: all 0.3s ease;
+        .header-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 4rem;
         }
 
-        .btn-primary:hover {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            transform: translateY(-1px);
-        }
-
-        .sidebar {
-            background-color: var(--card-bg);
-            min-height: calc(100vh - 76px);
-            border-right: 2px solid var(--border-color);
-        }
-
-        .sidebar .nav-link {
-            color: var(--text-dark);
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            margin: 2px 0;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .sidebar .nav-link:hover {
-            background-color: var(--accent-color);
-            color: white;
-            transform: translateX(5px);
-        }
-
-        .sidebar .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .tool-category {
-            border-left: 4px solid var(--accent-color);
-            padding-left: 15px;
-            margin-bottom: 20px;
-        }
-
-        .tool-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .tool-card:hover {
-            border-color: var(--accent-color);
-        }
-
-        .search-container {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            padding: 40px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            color: white;
-        }
-
-        .search-input {
-            border: 2px solid transparent;
-            border-radius: 50px;
-            padding: 15px 25px;
-            font-size: 1.1rem;
-            background-color: white;
-            color: var(--text-dark);
-        }
-
-        .search-input:focus {
-            border-color: white;
-            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
-            background-color: white;
-            color: var(--text-dark);
-        }
-
-        .search-btn {
-            border-radius: 50px;
-            padding: 15px 30px;
-            font-weight: 600;
-            background-color: white;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
             color: var(--primary-color);
-            border: 2px solid white;
+            text-decoration: none;
+            transition: color 0.2s ease;
         }
 
-        .search-btn:hover {
-            background-color: var(--light-bg);
-            color: var(--primary-color);
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 30px 20px;
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
+        .logo:hover {
             color: var(--accent-color);
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .loading-spinner {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .result-container {
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .result-item {
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px;
-            transition: background-color 0.3s ease;
-        }
-
-        .result-item:hover {
-            background-color: var(--light-bg);
-        }
-
-        .badge-custom {
-            font-size: 0.75rem;
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
-
-        .risk-low { background-color: var(--success-color); }
-        .risk-medium { background-color: var(--warning-color); }
-        .risk-high { background-color: var(--danger-color); }
-
-        .hero-section {
+        .logo-icon {
+            width: 2rem;
+            height: 2rem;
             background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            padding: 80px 0;
-            text-align: center;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
+            font-size: 1rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 0.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
         }
 
         .hero-title {
             font-size: 3.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.1;
         }
 
         .hero-subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            opacity: 0.95;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 42rem;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .feature-icon {
-            font-size: 3rem;
+        .hero-search {
+            max-width: 36rem;
+            margin: 0 auto 3rem;
+            position: relative;
+        }
+
+        .search-container {
+            display: flex;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: border-color 0.2s ease;
+        }
+
+        .search-container:focus-within {
+            border-color: var(--accent-color);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 1rem 1.25rem;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-type-select {
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 1rem;
+            font-size: 0.875rem;
+            outline: none;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .search-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-color);
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
             color: var(--accent-color);
-            margin-bottom: 20px;
+            display: block;
         }
 
-        .tab-content {
-            background-color: var(--card-bg);
-            border-radius: 0 8px 8px 8px;
-            padding: 20px;
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
         }
 
-        .nav-tabs .nav-link {
-            background-color: var(--light-bg);
-            color: var(--text-dark);
+        /* Quick Access */
+        .quick-access {
+            background: var(--bg-secondary);
+            padding: 3rem 0;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .category-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-color);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .category-icon {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .category-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 3rem 0;
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .tools-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .filters-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .filter-select,
+        .filter-input {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-color);
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .tool-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-category {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tool-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .badge-free { background: #d4edda; color: #155724; }
+        .badge-freemium { background: #fff3cd; color: #856404; }
+        .badge-paid { background: #f8d7da; color: #721c24; }
+        .badge-low { background: #d1ecf1; color: #0c5460; }
+        .badge-medium { background: #fff3cd; color: #856404; }
+        .badge-high { background: #f8d7da; color: #721c24; }
+
+        [data-theme="dark"] .badge-free { background: rgba(46, 125, 50, 0.3); color: #81c784; border: 1px solid #4caf50; }
+        [data-theme="dark"] .badge-freemium { background: rgba(255, 152, 0, 0.3); color: #ffb74d; border: 1px solid #ff9800; }
+        [data-theme="dark"] .badge-paid { background: rgba(244, 67, 54, 0.3); color: #e57373; border: 1px solid #f44336; }
+        [data-theme="dark"] .badge-low { background: rgba(33, 150, 243, 0.3); color: #64b5f6; border: 1px solid #2196f3; }
+        [data-theme="dark"] .badge-medium { background: rgba(255, 152, 0, 0.3); color: #ffb74d; border: 1px solid #ff9800; }
+        [data-theme="dark"] .badge-high { background: rgba(244, 67, 54, 0.3); color: #e57373; border: 1px solid #f44336; }
+
+        .tool-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .tool-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .tool-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .tool-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-color);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             border: 1px solid var(--border-color);
         }
 
-        .nav-tabs .nav-link.active {
-            background-color: var(--card-bg);
-            color: var(--text-dark);
-            border-bottom-color: var(--card-bg);
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
         }
 
-        .form-control, .form-select {
-            background-color: white;
-            border: 2px solid var(--border-color);
-            color: var(--text-dark);
+        /* About Section */
+        .about-content {
+            max-width: 48rem;
+            margin: 0 auto;
         }
 
-        .form-control:focus, .form-select:focus {
-            background-color: white;
-            border-color: var(--accent-color);
-            color: var(--text-dark);
-            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.15);
+        .about-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
         }
 
-        .form-label {
-            color: var(--text-dark);
+        .about-card h3 {
+            color: var(--text-primary);
+            font-size: 1.25rem;
             font-weight: 600;
+            margin-bottom: 1rem;
         }
 
-        .table-striped {
-            --bs-table-striped-bg: var(--light-bg);
+        .about-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
         }
 
-        .progress {
-            background-color: var(--light-bg);
+        .about-card ul {
+            color: var(--text-secondary);
+            padding-left: 1.25rem;
         }
 
-        .progress-bar {
-            background-color: var(--accent-color);
+        .about-card li {
+            margin-bottom: 0.5rem;
         }
 
-        .text-muted {
-            color: var(--text-muted) !important;
+        /* Search Results */
+        .search-results {
+            margin-top: 2rem;
         }
 
-        .list-group-item {
-            background-color: var(--card-bg);
-            color: var(--text-dark);
-            border-color: var(--border-color);
+        .results-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            overflow: hidden;
         }
 
-        .alert-info {
-            background-color: #eff6ff;
-            border-color: #bfdbfe;
-            color: var(--primary-color);
+        .results-header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
-        .alert-warning {
-            background-color: #fffbeb;
-            border-color: #fed7aa;
-            color: #92400e;
+        .results-content {
+            padding: 1.5rem;
         }
 
-        .bg-success { background-color: var(--success-color) !important; }
-        .bg-warning { background-color: var(--warning-color) !important; }
-        .bg-danger { background-color: var(--danger-color) !important; }
-        .bg-info { background-color: var(--accent-color) !important; }
-        .bg-secondary { background-color: var(--text-muted) !important; }
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsive */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
 
         @media (max-width: 768px) {
-            .sidebar {
-                min-height: auto;
+            .nav-menu {
+                display: none;
             }
-            
-            .search-container {
-                padding: 30px 20px;
+
+            .mobile-menu-toggle {
+                display: block;
             }
-            
-            .stat-number {
-                font-size: 2rem;
-            }
-            
+
             .hero-title {
                 font-size: 2.5rem;
             }
 
             .hero-subtitle {
-                font-size: 1.25rem;
+                font-size: 1.125rem;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tools-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
             }
         }
 
-        /* Animation classes */
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
+        /* Hide sections by default */
+        #toolsSection,
+        #searchSection,
+        #aboutSection {
+            display: none;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        #homeSection {
+            display: block;
         }
 
-        .slide-in {
-            animation: slideIn 0.3s ease-out;
+        /* Utility classes */
+        .text-center {
+            text-align: center;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
+        .hidden {
+            display: none !important;
         }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .flex {
+            display: flex;
         }
 
-        ::-webkit-scrollbar-track {
-            background: var(--light-bg);
+        .items-center {
+            align-items: center;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent-color);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-color);
-        }
-
-        /* Improved link colors */
-        a {
-            color: var(--accent-color);
-            text-decoration: none;
-        }
-
-        a:hover {
-            color: var(--primary-color);
-        }
-
-        /* Better contrast for small text */
-        small {
-            color: var(--text-muted);
-        }
-
-        /* Card text improvements */
-        .card-text {
-            color: var(--text-dark);
-            line-height: 1.5;
-        }
-
-        /* Button improvements */
-        .btn-outline-light {
-            border-color: white;
-            color: white;
-        }
-
-        .btn-outline-light:hover {
-            background-color: white;
-            color: var(--primary-color);
-            border-color: white;
+        .gap-2 {
+            gap: 0.5rem;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#" data-section="home">
-                <i class="fas fa-search-location me-2"></i>
-                OSINT Nexus
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="#" class="logo" data-section="home">
+                <div class="logo-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <span>OSINT Hub</span>
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-section="tools">
-                            <i class="fas fa-tools me-1"></i> Tools Directory
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-section="search">
-                            <i class="fas fa-search me-1"></i> OSINT Search
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-section="about">
-                            <i class="fas fa-info-circle me-1"></i> About
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://github.com/your-username/osint-nexus" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-github me-1"></i> GitHub
-                        </a>
-                    </li>
-                </ul>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-link active" data-section="home">Home</a>
+                <a href="#" class="nav-link" data-section="tools">Tools</a>
+                <a href="#" class="nav-link" data-section="search">Search</a>
+                <a href="#" class="nav-link" data-section="about">About</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Content -->
-    <div class="container-fluid p-0">
-        <div class="row g-0">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar" id="sidebar">
-                <div class="p-3">
-                    <ul class="nav nav-pills flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#" data-section="home">
-                                <i class="fas fa-home me-2"></i> Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="tools">
-                                <i class="fas fa-tools me-2"></i> Tools Directory
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="search">
-                                <i class="fas fa-search me-2"></i> OSINT Search
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="categories">
-                                <i class="fas fa-layer-group me-2"></i> Categories
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="about">
-                                <i class="fas fa-info-circle me-2"></i> About
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+    <main class="main-container">
+        <!-- Home Section -->
+        <section id="homeSection" class="content-section active">
+            <div class="hero">
+                <h1 class="hero-title">Professional OSINT Tools Directory</h1>
+                <p class="hero-subtitle">
+                    Discover, evaluate, and access the most comprehensive collection of 
+                    open-source intelligence tools for professional investigators and researchers.
+                </p>
 
-            <!-- Main Content Area -->
-            <div class="col-md-9 col-lg-10" id="mainContent">
-                <!-- Home Section -->
-                <div id="homeSection">
-                    <div class="hero-section">
-                        <div class="container">
-                            <h1 class="hero-title"><i class="fas fa-search-location me-3"></i>OSINT Nexus</h1>
-                            <p class="hero-subtitle">Open Source Intelligence Platform - Free & Public</p>
-                            <p class="mb-4">Comprehensive collection of OSINT tools and resources for investigators, researchers, and security professionals</p>
-                            <div class="d-flex justify-content-center gap-3 flex-wrap">
-                                <button class="btn btn-light btn-lg" data-section="tools">
-                                    <i class="fas fa-tools me-2"></i>Explore Tools
-                                </button>
-                                <button class="btn btn-outline-light btn-lg" data-section="search">
-                                    <i class="fas fa-search me-2"></i>Start Searching
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="container py-5">
-                        <!-- Stats Cards -->
-                        <div class="row mb-5">
-                            <div class="col-md-3 mb-3">
-                                <div class="card stat-card">
-                                    <div class="card-body">
-                                        <div class="stat-number" id="totalTools">5+</div>
-                                        <div class="stat-label">OSINT Tools</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card stat-card">
-                                    <div class="card-body">
-                                        <div class="stat-number">10+</div>
-                                        <div class="stat-label">Categories</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card stat-card">
-                                    <div class="card-body">
-                                        <div class="stat-number">100%</div>
-                                        <div class="stat-label">Free & Open</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card stat-card">
-                                    <div class="card-body">
-                                        <div class="stat-number">24/7</div>
-                                        <div class="stat-label">Available</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Features -->
-                        <div class="row mb-5">
-                            <div class="col-lg-4 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-tools feature-icon"></i>
-                                        <h5>Comprehensive Tools</h5>
-                                        <p>Curated collection of the best OSINT tools across multiple categories including social media, domain analysis, and threat intelligence.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-search feature-icon"></i>
-                                        <h5>Integrated Search</h5>
-                                        <p>Built-in search capabilities for email breach checking, domain analysis, and IP reputation - no API keys required for basic features.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-shield-alt feature-icon"></i>
-                                        <h5>OPSEC Aware</h5>
-                                        <p>Each tool includes OPSEC risk ratings and methodology classifications to help you choose the right approach for your investigation.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Start -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h5><i class="fas fa-rocket me-2"></i>Quick Start</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>🔍 Start an Investigation</h6>
-                                        <ol>
-                                            <li>Browse the <a href="#" data-section="tools">Tools Directory</a></li>
-                                            <li>Use the <a href="#" data-section="search">OSINT Search</a> features</li>
-                                            <li>Check tool ratings and OPSEC considerations</li>
-                                            <li>Click "Open Tool" to access external resources</li>
-                                        </ol>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>🛠️ Tool Categories</h6>
-                                        <ul>
-                                            <li>Email Investigation</li>
-                                            <li>Domain & IP Analysis</li>
-                                            <li>Social Media OSINT</li>
-                                            <li>People Search</li>
-                                            <li>Image Analysis</li>
-                                            <li>And many more...</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tools Section -->
-                <div id="toolsSection" class="p-4" style="display: none;">
-                    <div class="row mb-4">
-                        <div class="col">
-                            <h2><i class="fas fa-tools me-2"></i>OSINT Tools Directory</h2>
-                            <p class="text-muted">Comprehensive collection of open source intelligence tools</p>
-                        </div>
-                    </div>
-
-                    <!-- Tool Filters -->
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Category</label>
-                                    <select class="form-select" id="toolCategoryFilter">
-                                        <option value="">All Categories</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Pricing</label>
-                                    <select class="form-select" id="toolPricingFilter">
-                                        <option value="">All</option>
-                                        <option value="free">Free</option>
-                                        <option value="freemium">Freemium</option>
-                                        <option value="paid">Paid</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Search Tools</label>
-                                    <input type="text" class="form-control" id="toolSearchInput" placeholder="Search tools...">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tools Grid -->
-                    <div id="toolsGrid" class="row">
-                        <!-- Tools will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Search Section -->
-                <div id="searchSection" class="p-4" style="display: none;">
+                <div class="hero-search">
                     <div class="search-container">
-                        <div class="text-center mb-4">
-                            <h2><i class="fas fa-search me-2"></i>OSINT Search</h2>
-                            <p class="mb-0">Perform OSINT searches using integrated tools</p>
-                        </div>
-                        
-                        <div class="row justify-content-center">
-                            <div class="col-md-8">
-                                <div class="input-group">
-                                    <select class="form-select search-input" id="searchType" style="max-width: 150px;">
-                                        <option value="domain">Domain</option>
-                                        <option value="ip">IP Address</option>
-                                        <option value="general">General</option>
-                                    </select>
-                                    <input type="text" class="form-control search-input" id="searchInput" placeholder="Enter target...">
-                                    <button class="btn search-btn" id="performSearchBtn">
-                                        <i class="fas fa-search me-2"></i>Search
-                                    </button>
-                                </div>
-                                <div class="mt-3 text-center">
-                                    <small class="text-muted">No registration required • Basic searches are free</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Search Results -->
-                    <div id="searchResults" style="display: none;">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5><i class="fas fa-list me-2"></i>Search Results</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="loading-spinner" id="loadingSpinner">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <p class="mt-2">Searching...</p>
-                                </div>
-                                <div class="result-container" id="resultContainer">
-                                    <!-- Results will be populated by JavaScript -->
-                                </div>
-                            </div>
-                        </div>
+                        <select class="search-type-select" id="heroSearchType">
+                            <option value="general">General</option>
+                            <option value="domain">Domain</option>
+                            <option value="ip">IP Address</option>
+                            <option value="email">Email</option>
+                        </select>
+                        <input type="text" class="search-input" id="heroSearchInput" placeholder="Search tools or enter target for investigation...">
+                        <button class="search-btn" id="heroSearchBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Categories Section -->
-                <div id="categoriesSection" class="p-4" style="display: none;">
-                    <div class="row mb-4">
-                        <div class="col">
-                            <h2><i class="fas fa-layer-group me-2"></i>Tool Categories</h2>
-                            <p class="text-muted">Browse OSINT tools by category</p>
-                        </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalToolsCount">150+</span>
+                        <span class="stat-label">OSINT Tools</span>
                     </div>
-
-                    <div id="categoriesGrid" class="row">
-                        <!-- Categories will be populated by JavaScript -->
+                    <div class="stat-item">
+                        <span class="stat-number">25+</span>
+                        <span class="stat-label">Categories</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Free Access</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Available</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- About Section -->
-                <div id="aboutSection" class="p-4" style="display: none;">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-8 mx-auto">
-                                <h2><i class="fas fa-info-circle me-2"></i>About OSINT Nexus</h2>
-                                
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                        <h5>What is OSINT Nexus?</h5>
-                                        <p>OSINT Nexus is a free, open-source platform that provides a comprehensive directory of Open Source Intelligence (OSINT) tools and resources. Our mission is to make OSINT tools and techniques accessible to everyone - from security researchers and investigators to students and hobbyists.</p>
-                                    </div>
-                                </div>
+            <div class="quick-access">
+                <h2 class="section-title">Popular Categories</h2>
+                <div class="categories-grid" id="categoriesGrid">
+                    <!-- Categories will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
 
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                        <h5>Features</h5>
-                                        <ul>
-                                            <li><strong>Curated Tool Directory:</strong> 20+ carefully selected OSINT tools across multiple categories</li>
-                                            <li><strong>OPSEC Ratings:</strong> Each tool includes operational security risk assessments</li>
-                                            <li><strong>Integrated Search:</strong> Built-in search capabilities for common OSINT tasks</li>
-                                            <li><strong>No Registration:</strong> All features available without creating an account</li>
-                                            <li><strong>Mobile Friendly:</strong> Responsive design works on all devices</li>
-                                            <li><strong>Open Source:</strong> Fully open source and community-driven</li>
-                                        </ul>
-                                    </div>
-                                </div>
+        <!-- Tools Section -->
+        <section id="toolsSection" class="content-section">
+            <div class="tools-header">
+                <h2 class="section-title">OSINT Tools Directory</h2>
+                <div class="flex items-center gap-2">
+                    <span class="text-muted" id="toolsCount">Loading tools...</span>
+                </div>
+            </div>
 
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                        <h5>Disclaimer</h5>
-                                        <div class="alert alert-warning">
-                                            <i class="fas fa-exclamation-triangle me-2"></i>
-                                            This platform is for educational and authorized research purposes only. Users are responsible for ensuring their activities comply with applicable laws and regulations. Always respect privacy and obtain proper authorization before conducting investigations.
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="filters-container">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Category</label>
+                        <select class="filter-select" id="categoryFilter">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">OPSEC Risk</label>
+                        <select class="filter-select" id="riskFilter">
+                            <option value="">All Risk Levels</option>
+                            <option value="low">Low Risk</option>
+                            <option value="medium">Medium Risk</option>
+                            <option value="high">High Risk</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Search Tools</label>
+                        <input type="text" class="filter-input" id="toolSearchInput" placeholder="Search by name or description...">
+                    </div>
+                </div>
+            </div>
 
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5>Contributing</h5>
-                                        <p>OSINT Nexus is an open-source project. We welcome contributions including:</p>
-                                        <ul>
-                                            <li>New tool suggestions</li>
-                                            <li>Tool information updates</li>
-                                            <li>Bug reports and feature requests</li>
-                                            <li>Documentation improvements</li>
-                                        </ul>
-                                        <a href="https://github.com/your-username/osint-nexus" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                                            <i class="fab fa-github me-2"></i>View on GitHub
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="tools-grid" id="toolsGrid">
+                <!-- Tools will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Search Section -->
+        <section id="searchSection" class="content-section">
+            <h2 class="section-title">OSINT Investigation Search</h2>
+            
+            <div class="hero-search">
+                <div class="search-container">
+                    <select class="search-type-select" id="searchType">
+                        <option value="domain">Domain Analysis</option>
+                        <option value="ip">IP Investigation</option>
+                        <option value="email">Email Research</option>
+                        <option value="general">General OSINT</option>
+                    </select>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Enter target for investigation...">
+                    <button class="search-btn" id="performSearchBtn">
+                        <i class="fas fa-search"></i>
+                        Investigate
+                    </button>
+                </div>
+            </div>
+
+            <div id="searchResults" class="search-results hidden">
+                <div class="results-container">
+                    <div class="results-header">
+                        <i class="fas fa-clipboard-list"></i>
+                        Investigation Results
+                    </div>
+                    <div class="results-content">
+                        <div id="loadingSpinner" class="loading-spinner hidden">
+                            <div class="spinner"></div>
+                        </div>
+                        <div id="resultContainer">
+                            <!-- Results will be populated by JavaScript -->
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JavaScript -->
+        <!-- About Section -->
+        <section id="aboutSection" class="content-section">
+            <h2 class="section-title">The OSINT Framework Deconstructed</h2>
+            <p class="text-center" style="max-width: 48rem; margin: 0 auto 3rem; color: var(--text-secondary);">
+                A Comprehensive Catalog of Digital Investigation Tools & Sources
+            </p>
+            
+            <div class="about-content">
+                <div class="about-card">
+                    <h3>Introduction: Defining the Framework and the OSINT Ecosystem</h3>
+                    <p>
+                        Open-Source Intelligence (OSINT) is the discipline of collecting and analyzing information from publicly available sources to produce actionable intelligence. In this vast and ever-expanding digital landscape, the primary challenge for practitioners—be they cybersecurity analysts, law enforcement investigators, or journalists—is not a lack of information, but the difficulty in finding the right tool for a specific investigative task.
+                    </p>
+                    <p>
+                        This platform functions as a meticulously curated web-based directory, serving as a sitemap or an interactive mind map of the OSINT world. Its purpose is to categorize and link to hundreds of free tools and resources, guiding investigators to the appropriate solution based on their needs, whether they are analyzing an email address, a domain name, or a social media profile.
+                    </p>
+                </div>
+
+                <div class="about-card">
+                    <h3>Part I: Foundational Intelligence Collection</h3>
+                    
+                    <h4>Section 1: Human-Centric Intelligence</h4>
+                    <div style="margin: 1.5rem 0;">
+                        <h5>1.1 Username & Nickname Enumeration</h5>
+                        <p>Username enumeration involves taking a known username and querying hundreds of websites to determine where else that name is registered. This is foundational for mapping a target's digital footprint across disparate platforms.</p>
+                        
+                        <div style="overflow-x: auto; margin: 1rem 0;">
+                            <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                                <thead>
+                                    <tr style="background: var(--bg-secondary);">
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Tool/Source Name</th>
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Description & Function</th>
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>WhatsMyName</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Web-based tool that enumerates a username across hundreds of websites and services, categorizing hits by platform type.</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Web GUI, Exportable (CSV, PDF)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Sherlock</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Powerful command-line tool to hunt for social media accounts by username across a vast number of sites.</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Python, CLI Tool</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Tookie</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Command-line OSINT tool written in Python for finding social media accounts based on various inputs.</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Python, CLI Tool</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <h5>1.2 Email Address Investigation & Verification</h5>
+                        <p>
+                            An email address often functions as a de facto primary key for an individual's digital life, serving as the unique identifier that connects social media profiles, financial services, and professional accounts. This process involves searching for the email in data breach repositories, confirming its association with online accounts, and attempting to uncover the owner's name.
+                        </p>
+                        <p><strong>Key techniques include:</strong></p>
+                        <ul>
+                            <li><strong>Holehe:</strong> Checks if an email was used to register on sites like Twitter and Instagram</li>
+                            <li><strong>GHunt:</strong> For Google accounts, extracts owner's name, profile picture, Google Maps reviews, and public calendar events</li>
+                            <li><strong>Google Doc Sharing:</strong> Share a Google Doc with the target email; platform often reveals account holder's name</li>
+                            <li><strong>Breach Services:</strong> Dehashed and Intelligence X allow pivoting from email to usernames, passwords, and PII</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <h5>1.3 Phone Number Intelligence</h5>
+                        <p>
+                            Investigating a phone number can yield the owner's name, carrier, general location, and associated online accounts. Many modern applications use phone numbers for registration and two-factor authentication.
+                        </p>
+                        <p><strong>Notable tools:</strong></p>
+                        <ul>
+                            <li><strong>Getcontact:</strong> Reveals how a phone number is saved in other users' contact lists</li>
+                            <li><strong>X-osint framework:</strong> Includes modules for gathering information linked to phone numbers</li>
+                        </ul>
+                        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem; border-left: 4px solid var(--warning-color);">
+                            <strong>⚠️ OPSEC Warning:</strong> Some tools require uploading your address book, potentially exposing your contacts and compromising anonymity.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h3>Section 2: Technical & Web Intelligence</h3>
+                    
+                    <div style="margin: 1.5rem 0;">
+                        <h5>2.1 Domain, IP & DNS Investigation</h5>
+                        <p>
+                            Foundational web reconnaissance involves dissecting a target's online infrastructure. This includes WHOIS lookups, passive DNS analysis, and identifying "hosting neighbors." Historical records are crucial for "digital archaeology" as malicious actors frequently change hosting providers.
+                        </p>
+                        
+                        <div style="overflow-x: auto; margin: 1rem 0;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: var(--bg-secondary);">
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Tool/Source Name</th>
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Description & Function</th>
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Shodan</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Search engine for internet-connected devices, servers, webcams, and industrial control systems.</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Freemium, API Access</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>urlscan.io</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Browses submitted URLs and records all activity, domains contacted, resources requested, and technologies used.</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Web GUI, Free, API Access</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Censys</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Continuously scans the internet to discover devices, networks, and certificates.</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Freemium, API Access</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>BGPView</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Explores internet structure via ASNs, IP prefixes, and BGP peering data.</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Free, Web Interface</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <h5>2.2 Subdomain Enumeration & Discovery</h5>
+                        <p>
+                            Discovering subdomains (api.example.com, dev.example.com) is critical for expanding attack surface and finding hidden services. These often have weaker security configurations than main websites.
+                        </p>
+                        <p><strong>Key Tools:</strong></p>
+                        <ul>
+                            <li><strong>theHarvester:</strong> Gathers emails, subdomains, hosts, employee names from public sources</li>
+                            <li><strong>OWASP Amass:</strong> Comprehensive network mapping using passive and active reconnaissance</li>
+                            <li><strong>Recon-ng:</strong> Modular CLI framework integrating with dozens of APIs</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <h5>2.3 Website Analysis & Source Code Intelligence</h5>
+                        <p>
+                            Website content analysis involves identifying technologies, analyzing source code, and discovering related assets. Unique identifiers like Google Analytics IDs can reveal entire networks of related properties.
+                        </p>
+                        <p><strong>Advanced Techniques:</strong></p>
+                        <ul>
+                            <li><strong>Analytics Tracking:</strong> Same Google Analytics ID across multiple sites reveals ownership networks</li>
+                            <li><strong>Favicon Hashing:</strong> Calculate favicon hash to find other servers with same icon via Shodan</li>
+                            <li><strong>JavaScript Analysis:</strong> SourceWolf finds endpoints and social media links in JS files</li>
+                            <li><strong>Technology Profiling:</strong> Wappalyzer browser extension for instant tech stack identification</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h3>Part II: Specialized Data & Advanced Reconnaissance</h3>
+                    
+                    <div style="margin: 1.5rem 0;">
+                        <h5>Section 3: Geospatial & Multimedia Intelligence (GEOINT/MMINT)</h5>
+                        
+                        <h6>3.1 Maps, Geolocation & Transportation Tracking</h6>
+                        <p>
+                            Geospatial intelligence tools place digital data in the physical world. A single geotagged photograph can provide precise time and place for a target, demonstrating the erosion between online activity and real-world location.
+                        </p>
+                        
+                        <div style="overflow-x: auto; margin: 1rem 0;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: var(--bg-secondary);">
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Category</th>
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Tools & Sources</th>
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Capabilities</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Geotagged Social Media</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Apps.skylens.io</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Aggregates geotagged posts from Twitter, YouTube onto single map</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Aviation Tracking</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">FlightAware, ADS-b.nl, Flight Connections</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Real-time commercial/military aircraft tracking, route mapping</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Maritime Tracking</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">MarineTraffic, Shipping Database</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Live vessel tracking via AIS, historical vessel data</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Ground Transport</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Live Train Tracker, Waze Live Map</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Real-time train movements, crowdsourced road conditions</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h6>3.2 Satellite, Aerial & Street-Level Imagery</h6>
+                        <div style="overflow-x: auto; margin: 1rem 0;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: var(--bg-secondary);">
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Tool/Source Name</th>
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Description & Function</th>
+                                        <th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border-color);">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Google Earth</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">3D Earth representation with satellite imagery, aerial photography, and historical data</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Desktop/Web App, Free</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Sentinel Hub EO Browser</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Complete archive of Sentinel, Landsat, MODIS satellite data for global monitoring</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Web GUI, Freemium</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>USGS Earth Explorer</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Massive archive of US government satellite and aerial imagery spanning 40+ years</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Web GUI, Free, Registration Required</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);"><strong>Mapillary</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Crowdsourced street-level imagery, often more recent than Google Street View</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">Web GUI, Free</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h6>3.3 Document & Media Analysis (Metadata)</h6>
+                        <p>
+                            Metadata is the digital DNA of a file. Image EXIF data can reveal camera model, settings, and GPS coordinates. Documents can contain author names, organization details, and network paths. Threat actors often neglect to scrub this metadata.
+                        </p>
+                        <p><strong>Essential Tools:</strong></p>
+                        <ul>
+                            <li><strong>ExifTool:</strong> Command-line utility for reading/writing metadata from images, documents, videos</li>
+                            <li><strong>Bulk Metadata Extractor:</strong> Online service for quick metadata analysis</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h3>Section 4: Data Repositories & Search Infrastructure</h3>
+                    
+                    <div style="margin: 1.5rem 0;">
+                        <h5>4.1 Specialized & Custom Search Engines</h5>
+                        <p>While Google is powerful, many investigations require specialized search engines:</p>
+                        <ul>
+                            <li><strong>IoT Search:</strong> Shodan, Censys, ZoomEye for internet-connected devices</li>
+                            <li><strong>File Search:</strong> FilePursuit, de digger for specific file types in public directories</li>
+                            <li><strong>Threat Intelligence:</strong> Criminal IP, IntelX for cybersecurity-relevant data</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <h5>4.2 Web Archives & Historical Data</h5>
+                        <p>
+                            Web archives provide a time machine for investigators. The Internet Archive's Wayback Machine is the cornerstone, with tools like Waybackpack for downloading entire archived histories and Wayback Tweets for finding deleted Twitter posts.
+                        </p>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <h5>4.3 Leaked Data, Breaches & Pastebin Monitoring</h5>
+                        <p>
+                            Massive OSINT volumes derive from data breaches and public text-sharing "pastebins." These sites are used by developers for code snippets but also by threat actors for leaking data and sharing tutorials.
+                        </p>
+                        <p><strong>Key Resources:</strong></p>
+                        <ul>
+                            <li><strong>Pastebin Sites:</strong> Pastebin.com, GitHub Gist, Hastebin</li>
+                            <li><strong>Aggregators:</strong> PsbDmp archives millions of public pastes</li>
+                            <li><strong>Breach Search:</strong> Dehashed, Intelligence X for searching billions of leaked records</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <h5>4.4 Dark Web & Deep Web Search</h5>
+                        <p>
+                            The dark web is critical for threat intelligence. While associated with illicit marketplaces, it's where threat actors collaborate, discuss vulnerabilities, and leak data. Monitoring provides proactive intelligence on emerging threats.
+                        </p>
+                        <p><strong>Access Tools:</strong></p>
+                        <ul>
+                            <li><strong>Ahmia:</strong> Tor-native search engine with harmful content filtering</li>
+                            <li><strong>OnionSearch:</strong> Automates scraping of multiple .onion search engines</li>
+                            <li><strong>Commercial Services:</strong> Intelligence X, DarkOwl for indexed dark web content</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h3>Part III: Operational & Strategic Intelligence</h3>
+                    
+                    <div style="margin: 1.5rem 0;">
+                        <h5>Section 5: Corporate & Commercial Intelligence</h5>
+                        <p>
+                            OSINT extends beyond individual tracking to corporate due diligence, brand protection, and market research. Tools exist for investigating business registrations, corporate structures, and financial data essential for competitive intelligence and M&A analysis.
+                        </p>
+                    </div>
+
+                    <div style="margin: 1.5rem 0;">
+                        <h5>Section 6: Operational Toolkits & Frameworks</h5>
+                        
+                        <h6>6.1 Browser Extensions & Analysis Add-ons</h6>
+                        <p>Browser extensions integrate OSINT capabilities directly into analyst workflows:</p>
+                        <ul>
+                            <li><strong>Sputnik:</strong> Pop-up menu for sending IPs, domains, hashes to services like VirusTotal and Shodan</li>
+                            <li><strong>linkKlipper:</strong> Extract all links from webpages into downloadable lists</li>
+                            <li><strong>Technology Profilers:</strong> Identify website software stacks</li>
+                        </ul>
+
+                        <h6>6.2 Command-Line (CLI) Frameworks & Scripts</h6>
+                        <p>For automation and scalability, CLI frameworks are essential:</p>
+                        <ul>
+                            <li><strong>Recon-ng:</strong> Automates reconnaissance with consistent API interface</li>
+                            <li><strong>SpiderFoot:</strong> Integrates 200+ data sources for automated target mapping</li>
+                            <li><strong>OSRFramework:</strong> Suite of scripts for username, domain, and DNS enumeration</li>
+                        </ul>
+
+                        <h6>6.3 Data Visualization & Link Analysis</h6>
+                        <p>
+                            Raw data is not intelligence. Link analysis platforms help process and visualize data to find hidden relationships. <strong>Maltego</strong> is the industry standard, representing data as nodes on a graph with connecting relationships, enabling pattern recognition that's impossible in spreadsheets.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h3>Strategic Application & Best Practices</h3>
+                    
+                    <div style="margin: 1.5rem 0;">
+                        <h5>Core Principles for OSINT Practitioners</h5>
+                        
+                        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 0.5rem; border-left: 4px solid var(--danger-color); margin: 1rem 0;">
+                            <h6 style="margin-bottom: 1rem;">🔒 1. Operational Security (OPSEC) is Paramount</h6>
+                            <p>The act of investigating can expose the investigator. Best practices are non-negotiable:</p>
+                            <ul>
+                                <li>Use a trusted VPN</li>
+                                <li>Conduct investigations from dedicated virtual machines (CSI Linux, Tails, Qubes OS)</li>
+                                <li>Use non-attributable "sock puppet" accounts for online services</li>
+                                <li>Never access malicious websites from production systems</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 0.5rem; border-left: 4px solid var(--warning-color); margin: 1rem 0;">
+                            <h6 style="margin-bottom: 1rem;">🔍 2. Principle of Triangulation</h6>
+                            <p>No single tool or source is infallible. Data can be outdated, inaccurate, or deliberately misleading. Any critical finding must be cross-verified with at least two other independent sources to ensure accuracy and avoid building investigations on false premises.</p>
+                        </div>
+
+                        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 0.5rem; border-left: 4px solid var(--info-color); margin: 1rem 0;">
+                            <h6 style="margin-bottom: 1rem;">🛠️ 3. Build a Personalized Toolkit</h6>
+                            <p>The most effective analyst masters a curated set of tools tailored to their specific needs. A threat intelligence analyst's toolkit differs significantly from a journalist's or due diligence investigator's. This platform serves as a master catalog for building efficient, effective, and secure workflows.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h3>Legal and Ethical Considerations</h3>
+                    <p>
+                        <strong>Important Disclaimer:</strong> This platform and its catalogued tools are for educational and authorized research purposes only. Users are responsible for ensuring their activities comply with applicable laws and regulations. Always respect privacy, obtain proper authorization before conducting investigations, and adhere to your organization's policies and local legal requirements.
+                    </p>
+                    <p>
+                        The tools and techniques described here should only be used for legitimate purposes such as cybersecurity research, authorized penetration testing, digital forensics, journalism, and academic research within appropriate legal frameworks.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
     <script src="js/app.js"></script>
 </body>
 </html>
