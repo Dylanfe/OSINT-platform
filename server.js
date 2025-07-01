@@ -65,6 +65,7 @@ app.set('socketio', io);
 
 // Routes
 app.use('/api/tools', require('./routes/tools'));
+app.use('/api/osint', require('./routes/osint'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -96,7 +97,8 @@ app.get('/api', (req, res) => {
         version: '1.0.0',
         endpoints: {
             health: '/api/health',
-            tools: '/api/tools'
+            tools: '/api/tools',
+            osint: '/api/osint'
         }
     });
 });
