@@ -765,17 +765,259 @@ class OSINTHub {
                 tags: ["framework", "automation", "rust"],
                 averageRating: 4.3,
                 totalUses: 1200
+            },
+            // Automated Data Collection & API Integration Tools
+            {
+                id: '46',
+                name: "Social Media API Aggregator",
+                category: "automated-collection",
+                description: "Automated tool for collecting data from Twitter, Instagram, Facebook, LinkedIn APIs with rate limiting and compliance",
+                url: "https://github.com/socialmedia-osint/api-aggregator",
+                pricing: "freemium",
+                opsecRisk: "medium",
+                tags: ["social-media", "api", "automation", "data-collection"],
+                averageRating: 4.4,
+                totalUses: 2890
+            },
+            {
+                id: '47',
+                name: "NewsAPI Collector",
+                category: "automated-collection",
+                description: "Automated news gathering from 70,000+ sources worldwide with keyword monitoring and sentiment analysis",
+                url: "https://newsapi.org/",
+                pricing: "freemium",
+                opsecRisk: "low",
+                tags: ["news", "api", "monitoring", "automation"],
+                averageRating: 4.6,
+                totalUses: 3450
+            },
+            {
+                id: '48',
+                name: "PublicRecords Scraper",
+                category: "automated-collection",
+                description: "Automated scraping of public records databases including court records, property records, business registrations",
+                url: "https://github.com/osint-tools/publicrecords-scraper",
+                pricing: "free",
+                opsecRisk: "medium",
+                tags: ["public-records", "scraping", "automation", "legal"],
+                averageRating: 4.2,
+                totalUses: 1560
+            },
+            {
+                id: '49',
+                name: "OSINT Automation Platform",
+                category: "automated-collection",
+                description: "Complete automation platform integrating 50+ data sources with scheduled collection and alerting",
+                url: "https://github.com/automation-osint/platform",
+                pricing: "freemium",
+                opsecRisk: "medium",
+                tags: ["automation", "platform", "scheduling", "alerts"],
+                averageRating: 4.7,
+                totalUses: 2100
+            },
+            {
+                id: '50',
+                name: "Reddit Data Collector",
+                category: "automated-collection",
+                description: "Automated Reddit data collection via PRAW API for sentiment analysis and trend monitoring",
+                url: "https://github.com/reddit-osint/data-collector",
+                pricing: "free",
+                opsecRisk: "low",
+                tags: ["reddit", "api", "sentiment", "trends"],
+                averageRating: 4.3,
+                totalUses: 1890
+            },
+            {
+                id: '51',
+                name: "Financial Data Aggregator",
+                category: "automated-collection",
+                description: "Automated collection from financial APIs including SEC filings, stock data, cryptocurrency transactions",
+                url: "https://github.com/finint-osint/aggregator",
+                pricing: "freemium",
+                opsecRisk: "low",
+                tags: ["financial", "sec", "crypto", "automation"],
+                averageRating: 4.5,
+                totalUses: 1670
+            },
+            {
+                id: '52',
+                name: "Government Data Harvester",
+                category: "automated-collection",
+                description: "Automated scraping of government databases, FOIA requests, and public document repositories",
+                url: "https://github.com/govint-tools/data-harvester",
+                pricing: "free",
+                opsecRisk: "low",
+                tags: ["government", "foia", "public-data", "automation"],
+                averageRating: 4.4,
+                totalUses: 1230
+            },
+            {
+                id: '53',
+                name: "Web Archive Crawler",
+                category: "automated-collection",
+                description: "Automated crawler for historical data from Internet Archive, Archive.today, and regional archives",
+                url: "https://github.com/archive-tools/web-crawler",
+                pricing: "free",
+                opsecRisk: "low",
+                tags: ["archive", "historical", "crawler", "automation"],
+                averageRating: 4.6,
+                totalUses: 2340
+            },
+            {
+                id: '54',
+                name: "Job Board Intelligence",
+                category: "automated-collection",
+                description: "Automated data collection from job boards for company intelligence and employee profiling",
+                url: "https://github.com/jobint-osint/board-intelligence",
+                pricing: "freemium",
+                opsecRisk: "medium",
+                tags: ["jobs", "companies", "employees", "automation"],
+                averageRating: 4.1,
+                totalUses: 890
+            },
+            {
+                id: '55',
+                name: "Patent & IP Monitor",
+                category: "automated-collection",
+                description: "Automated monitoring of patent databases, trademark filings, and intellectual property registrations",
+                url: "https://github.com/ip-osint/patent-monitor",
+                pricing: "freemium",
+                opsecRisk: "low",
+                tags: ["patents", "ip", "monitoring", "automation"],
+                averageRating: 4.3,
+                totalUses: 1120
+            },
+            {
+                id: '56',
+                name: "Academic Research Collector",
+                category: "automated-collection",
+                description: "Automated collection from academic databases, research papers, and citation networks",
+                url: "https://github.com/academic-osint/research-collector",
+                pricing: "free",
+                opsecRisk: "low",
+                tags: ["academic", "research", "papers", "automation"],
+                averageRating: 4.4,
+                totalUses: 1450
+            },
+            {
+                id: '57',
+                name: "Real Estate Data Miner",
+                category: "automated-collection",
+                description: "Automated scraping of property records, real estate listings, and ownership information",
+                url: "https://github.com/realestate-osint/data-miner",
+                pricing: "freemium",
+                opsecRisk: "medium",
+                tags: ["real-estate", "property", "ownership", "automation"],
+                averageRating: 4.2,
+                totalUses: 1340
+            },
+            {
+                id: '58',
+                name: "Transportation Data Hub",
+                category: "automated-collection",
+                description: "Automated collection from flight, vessel, train, and vehicle tracking APIs with real-time updates",
+                url: "https://github.com/transport-osint/data-hub",
+                pricing: "freemium",
+                opsecRisk: "low",
+                tags: ["transportation", "tracking", "real-time", "automation"],
+                averageRating: 4.5,
+                totalUses: 1890
+            },
+            {
+                id: '59',
+                name: "Healthcare Data Aggregator",
+                category: "automated-collection",
+                description: "Automated collection from medical databases, clinical trials, and healthcare provider information",
+                url: "https://github.com/healthcare-osint/aggregator",
+                pricing: "paid",
+                opsecRisk: "high",
+                tags: ["healthcare", "medical", "clinical", "automation"],
+                averageRating: 4.1,
+                totalUses: 670
+            },
+            {
+                id: '60',
+                name: "Environmental Data Collector",
+                category: "automated-collection",
+                description: "Automated collection from environmental monitoring APIs, satellite data, and climate databases",
+                url: "https://github.com/enviro-osint/data-collector",
+                pricing: "free",
+                opsecRisk: "low",
+                tags: ["environment", "satellite", "climate", "automation"],
+                averageRating: 4.3,
+                totalUses: 1120
+            },
+            {
+                id: '61',
+                name: "Breach Monitoring System",
+                category: "automated-collection",
+                description: "Automated monitoring of data breach databases, dark web markets, and leak notifications",
+                url: "https://github.com/breach-osint/monitoring-system",
+                pricing: "freemium",
+                opsecRisk: "high",
+                tags: ["breach", "dark-web", "monitoring", "automation"],
+                averageRating: 4.4,
+                totalUses: 1560
+            },
+            {
+                id: '62',
+                name: "API Rate Limiter Pro",
+                category: "automated-collection",
+                description: "Advanced rate limiting and proxy rotation system for automated data collection compliance",
+                url: "https://github.com/api-tools/rate-limiter-pro",
+                pricing: "freemium",
+                opsecRisk: "low",
+                tags: ["rate-limiting", "proxy", "compliance", "automation"],
+                averageRating: 4.6,
+                totalUses: 2340
+            },
+            {
+                id: '63',
+                name: "Multi-Source Data Fusion",
+                category: "automated-collection",
+                description: "Automated data fusion platform combining multiple OSINT sources with correlation and deduplication",
+                url: "https://github.com/data-fusion/multi-source",
+                pricing: "paid",
+                opsecRisk: "medium",
+                tags: ["data-fusion", "correlation", "automation", "analytics"],
+                averageRating: 4.7,
+                totalUses: 1890
+            },
+            {
+                id: '64',
+                name: "Automated Alert System",
+                category: "automated-collection",
+                description: "Real-time alerting system for automated data collection with custom triggers and notifications",
+                url: "https://github.com/alert-systems/automated-osint",
+                pricing: "freemium",
+                opsecRisk: "low",
+                tags: ["alerts", "notifications", "real-time", "automation"],
+                averageRating: 4.5,
+                totalUses: 1670
+            },
+            {
+                id: '65',
+                name: "Data Pipeline Manager",
+                category: "automated-collection",
+                description: "Complete data pipeline management for OSINT automation with ETL processes and quality control",
+                url: "https://github.com/pipeline-tools/osint-manager",
+                pricing: "freemium",
+                opsecRisk: "medium",
+                tags: ["pipeline", "etl", "quality-control", "automation"],
+                averageRating: 4.6,
+                totalUses: 2100
             }
         ];
     }
 
     getFallbackCategories() {
         return [
+            { category: "automated-collection", toolCount: 20, averageRating: 4.5, icon: "fas fa-robot" },
             { category: "domain-ip", toolCount: 8, averageRating: 4.6, icon: "fas fa-globe" },
             { category: "email-investigation", toolCount: 7, averageRating: 4.3, icon: "fas fa-envelope" },
-            { category: "username-search", toolCount: 3, averageRating: 4.6, icon: "fas fa-user-search" },
             { category: "frameworks", toolCount: 6, averageRating: 4.4, icon: "fas fa-tools" },
             { category: "social-media", toolCount: 4, averageRating: 4.2, icon: "fas fa-share-alt" },
+            { category: "username-search", toolCount: 3, averageRating: 4.6, icon: "fas fa-user-search" },
             { category: "geolocation", toolCount: 3, averageRating: 4.5, icon: "fas fa-map-marker-alt" },
             { category: "metadata", toolCount: 3, averageRating: 4.4, icon: "fas fa-file-code" },
             { category: "breach-data", toolCount: 2, averageRating: 4.4, icon: "fas fa-shield-alt" },
@@ -796,6 +1038,7 @@ class OSINTHub {
 
     getCategoryIcon(category) {
         const icons = {
+            'automated-collection': 'fas fa-robot',
             'domain-ip': 'fas fa-globe',
             'email-investigation': 'fas fa-envelope',
             'username-search': 'fas fa-user-search',
