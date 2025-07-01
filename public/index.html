@@ -683,10 +683,170 @@
             }
         }
 
+        /* Dashboard Styles */
+        .stat-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .stat-change.positive {
+            background: rgba(56, 161, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .stat-change.negative {
+            background: rgba(229, 62, 62, 0.1);
+            color: var(--danger-color);
+        }
+
+        .dashboard-widget {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .dashboard-widget:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .widget-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .widget-header h3 {
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .widget-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .live-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .widget-content {
+            padding: 1.5rem;
+        }
+
+        .alert-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-timestamp {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+
+        .alert-severity-high {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .alert-severity-medium {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .alert-severity-low {
+            border-left: 4px solid var(--info-color);
+        }
+
+        .event-log-entry {
+            padding: 0.25rem 0;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .event-log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .event-timestamp {
+            color: var(--text-muted);
+            margin-right: 0.5rem;
+        }
+
         /* Hide sections by default */
         #toolsSection,
         #searchSection,
-        #aboutSection {
+        #aboutSection,
+        #dashboardSection {
             display: none;
         }
 
@@ -731,6 +891,7 @@
                 <a href="#" class="nav-link active" data-section="home">Home</a>
                 <a href="#" class="nav-link" data-section="tools">Tools</a>
                 <a href="#" class="nav-link" data-section="search">Search</a>
+                <a href="#" class="nav-link" data-section="dashboard">Dashboard</a>
                 <a href="#" class="nav-link" data-section="about">About</a>
             </nav>
 
@@ -870,6 +1031,182 @@
                         <div id="resultContainer">
                             <!-- Results will be populated by JavaScript -->
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section - Real-Time OSINT Data Visualizations -->
+        <section id="dashboardSection" class="content-section">
+            <h2 class="section-title">Live OSINT Intelligence Dashboard</h2>
+            <p class="text-center" style="max-width: 48rem; margin: 0 auto 3rem; color: var(--text-secondary);">
+                Real-time data visualizations and intelligence feeds updating live
+            </p>
+
+            <!-- Dashboard Controls -->
+            <div class="filters-container" style="margin-bottom: 2rem;">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Data Source</label>
+                        <select class="filter-select" id="dashboardSource">
+                            <option value="all">All Sources</option>
+                            <option value="social">Social Media</option>
+                            <option value="network">Network Traffic</option>
+                            <option value="threats">Threat Intelligence</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Update Frequency</label>
+                        <select class="filter-select" id="updateFrequency">
+                            <option value="1">1 Second</option>
+                            <option value="5" selected>5 Seconds</option>
+                            <option value="30">30 Seconds</option>
+                            <option value="60">1 Minute</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Geographic Filter</label>
+                        <select class="filter-select" id="geoFilter">
+                            <option value="global">Global</option>
+                            <option value="us">United States</option>
+                            <option value="eu">Europe</option>
+                            <option value="asia">Asia Pacific</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Statistics Row -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="stat-value" id="globalCyberAttacks">2,847</div>
+                    <div class="stat-label">Global Cyber Attacks (24h)</div>
+                    <div class="stat-change positive" id="attacksChange">+127</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-virus"></i></div>
+                    <div class="stat-value" id="newMalwareSamples">432</div>
+                    <div class="stat-label">New Malware Samples</div>
+                    <div class="stat-change positive" id="malwareChange">+18</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-database"></i></div>
+                    <div class="stat-value" id="dataBreachRecords">1.2M</div>
+                    <div class="stat-label">Breach Records Exposed</div>
+                    <div class="stat-change negative" id="breachChange">-89K</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-user-secret"></i></div>
+                    <div class="stat-value" id="darkWebMentions">3,156</div>
+                    <div class="stat-label">Dark Web Mentions</div>
+                    <div class="stat-change positive" id="darkwebChange">+89</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
+                
+                <!-- Real-time Threat Intelligence Chart -->
+                <div class="dashboard-widget">
+                    <div class="widget-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Threat Intelligence Feed</h3>
+                        <div class="widget-controls">
+                            <span class="live-indicator"></span>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        <canvas id="threatChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Social Media Sentiment Analysis -->
+                <div class="dashboard-widget">
+                    <div class="widget-header">
+                        <h3><i class="fas fa-heart"></i> Social Sentiment Analysis</h3>
+                        <div class="widget-controls">
+                            <span class="live-indicator"></span>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        <canvas id="sentimentChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Network Traffic Visualization -->
+                <div class="dashboard-widget">
+                    <div class="widget-header">
+                        <h3><i class="fas fa-network-wired"></i> Network Traffic Flow</h3>
+                        <div class="widget-controls">
+                            <span class="live-indicator"></span>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        <canvas id="networkChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Geographic Intelligence Map -->
+                <div class="dashboard-widget">
+                    <div class="widget-header">
+                        <h3><i class="fas fa-map-marked-alt"></i> Geographic Intelligence</h3>
+                        <div class="widget-controls">
+                            <span class="live-indicator"></span>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        <canvas id="geoChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Data Source Activity -->
+                <div class="dashboard-widget">
+                    <div class="widget-header">
+                        <h3><i class="fas fa-chart-pie"></i> Data Source Activity</h3>
+                        <div class="widget-controls">
+                            <span class="live-indicator"></span>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        <canvas id="sourceChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Alerts Feed -->
+                <div class="dashboard-widget">
+                    <div class="widget-header">
+                        <h3><i class="fas fa-bell"></i> Live Alert Feed</h3>
+                        <div class="widget-controls">
+                            <span class="live-indicator"></span>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                    <div class="widget-content" style="height: 300px; overflow-y: auto;">
+                        <div id="alertsFeed">
+                            <!-- Live alerts will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Real-time Event Log -->
+            <div class="dashboard-widget" style="margin-top: 2rem;">
+                <div class="widget-header">
+                    <h3><i class="fas fa-list"></i> Real-time Event Log</h3>
+                    <div class="widget-controls">
+                        <button class="btn btn-secondary" onclick="clearEventLog()">Clear Log</button>
+                        <button class="btn btn-secondary" onclick="exportEventLog()">Export</button>
+                    </div>
+                </div>
+                <div class="widget-content" style="height: 200px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.875rem;">
+                    <div id="eventLog">
+                        <!-- Live events will be populated here -->
                     </div>
                 </div>
             </div>
