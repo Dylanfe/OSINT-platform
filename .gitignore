@@ -3,15 +3,17 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
+
+# Dependency lock files (keep package-lock.json for open source)
 yarn.lock
 
-# Environment variables (secrets)
+# Environment variables (secrets - NEVER commit these!)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.staging
 
 # Runtime data
 pids
@@ -25,11 +27,13 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
 # Coverage directory used by tools like istanbul
 coverage/
 *.lcov
 .nyc_output
+.c8_output/
 
 # Optional npm cache directory
 .npm
@@ -45,12 +49,17 @@ uploads/
 tmp/
 temp/
 .tmp/
+public/uploads/
 
 # Database files (runtime data)
 *.db
 *.sqlite
 *.sqlite3
 *.db-journal
+
+# MongoDB dumps
+dump/
+*.bson
 
 # OS generated files
 .DS_Store
@@ -62,9 +71,11 @@ ehthumbs.db
 Thumbs.db
 *.tmp
 *.temp
+desktop.ini
 
-# IDE files (personal preferences)
-.vscode/
+# IDE files (keep minimal)
+.vscode/settings.json
+.vscode/launch.json
 .idea/
 *.swp
 *.swo
@@ -72,6 +83,8 @@ Thumbs.db
 .project
 .classpath
 .settings/
+*.sublime-project
+*.sublime-workspace
 
 # Backup files
 *.bak
@@ -79,18 +92,23 @@ Thumbs.db
 *.old
 *.orig
 
-# SSL certificates
+# SSL certificates and keys
 *.pem
 *.key
 *.crt
 *.cert
 *.p12
 *.pfx
+ssl/
+certs/
 
 # Build outputs
 dist/
 build/
 out/
+.next/
+.nuxt/
+.vuepress/dist
 
 # Cache directories
 .cache/
@@ -99,60 +117,115 @@ out/
 .rts2_cache_cjs/
 .rts2_cache_es/
 .rts2_cache_umd/
+.eslintcache
+.stylelintcache
 
 # Test output
 test-results/
 coverage/
 .nyc_output/
+junit.xml
 
-# Dependency lock files (personal choice - can be included)
-# package-lock.json
-# yarn.lock
+# Puppeteer and browser automation
+.puppeteer/
+screenshots/
+browser-cache/
 
-# Binary files that GitHub can't display
-*.exe
-*.dll
-*.so
-*.dylib
-*.zip
-*.tar.gz
-*.rar
-*.7z
+# Security and API keys
+secrets/
+keys/
+credentials/
+config/production.json
+config/staging.json
 
-# Image files (unless specifically needed for documentation)
-# *.jpg
-# *.jpeg
-# *.png
-# *.gif
-# *.bmp
-# *.tiff
+# Runtime sessions and storage
+sessions/
+storage/
+data/
+reports/
+exports/
 
-# Video files
+# Large files and media (unless specifically needed)
 *.mp4
 *.avi
 *.mov
 *.wmv
 *.flv
-
-# Audio files
+*.mkv
 *.mp3
 *.wav
 *.aac
 *.flac
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.iso
+*.dmg
 
-# Archive files
-*.tar
-*.gz
-*.bz2
-*.xz
-
-# Compiled files
+# Compiled binaries
+*.exe
+*.dll
+*.so
+*.dylib
 *.o
 *.a
 *.lib
 *.obj
 
-# Application specific runtime
-sessions/
-public/uploads/
-storage/
+# macOS specific
+.AppleDouble
+.LSOverride
+Icon?
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux specific
+*~
+.nfs*
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Terraform (if used for deployment)
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Cloud provider specific
+.aws/
+.gcp/
+.azure/
+
+# Investigation data (sensitive)
+investigations/
+case-files/
+evidence/
+targets/
+osint-data/
+scraped-data/
+
+# Tool-specific outputs
+nuclei-output/
+nmap-output/
+gobuster-output/
+tool-results/
+
+# Temporary OSINT files
+*.har
+*.warc
+whois-cache/
+dns-cache/
+
+# Personal notes and documentation (keep public docs)
+notes/
+personal/
+TODO.md
+NOTES.md
