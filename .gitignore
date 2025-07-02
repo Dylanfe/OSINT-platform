@@ -77,6 +77,10 @@ firebase-functions-debug.log
 functions/.env
 functions/.env.local
 
+# Database seeding scripts with credentials
+seed-mongodb.js
+**/seed-*.js
+
 # OS generated files
 .DS_Store
 .DS_Store?
