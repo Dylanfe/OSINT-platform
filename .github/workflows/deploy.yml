@@ -34,10 +34,6 @@ jobs:
           mkdir -p _site
           # Copy all files from public directory
           cp -r public/* _site/
-          # Also copy root-level files for fallback
-          cp index.html _site/index.html 2>/dev/null || true
-          cp styles.css _site/styles.css 2>/dev/null || true
-          cp app.js _site/app.js 2>/dev/null || true
           # List files for debugging
           echo "Files in _site directory:"
           ls -la _site/

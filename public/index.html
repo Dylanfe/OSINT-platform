@@ -998,14 +998,15 @@
 
                 <div class="hero-search">
                     <div class="search-container">
-                        <select class="search-type-select" id="heroSearchType">
+                        <label for="heroSearchType" class="visually-hidden" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">Search Type</label>
+                        <select class="search-type-select" id="heroSearchType" aria-label="Search Type">
                             <option value="general">General</option>
                             <option value="domain">Domain</option>
                             <option value="ip">IP Address</option>
                             <option value="email">Email</option>
                         </select>
                         <input type="text" class="search-input" id="heroSearchInput" placeholder="Search tools or enter target for investigation...">
-                        <button class="search-btn" id="heroSearchBtn">
+                        <button class="search-btn" id="heroSearchBtn" title="Search">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
