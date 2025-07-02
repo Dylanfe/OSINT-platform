@@ -71,6 +71,12 @@ ui-debug.log
 .firebase-admin.json
 firebase-adminsdk-*.json
 
+# Additional Firebase and environment files
+pglite-debug.log
+firebase-functions-debug.log
+functions/.env
+functions/.env.local
+
 # OS generated files
 .DS_Store
 .DS_Store?
