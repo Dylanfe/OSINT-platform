@@ -193,11 +193,47 @@ class OSINTHub {
     }
 
     async loadTools() {
-        // Force use of fallback data to ensure all 45+ tools are loaded
-        console.log('Loading fallback tools data...');
-        this.tools = this.getFallbackTools();
-        this.filteredTools = [...this.tools];
-        console.log(`Loaded ${this.tools.length} tools`);
+        try {
+            console.log('Loading tools from database...');
+            
+            // Load all tools using pagination
+            let allTools = [];
+            let page = 1;
+            let hasMore = true;
+            
+            while (hasMore) {
+                const response = await this.apiCall(`/tools?limit=100&page=${page}`);
+                
+                if (response.success && response.data && response.data.length > 0) {
+                    allTools.push(...response.data);
+                    console.log(`Loaded page ${page}: ${response.data.length} tools (total: ${allTools.length})`);
+                    
+                    // Check if there are more pages
+                    hasMore = response.pagination && response.pagination.next;
+                    page++;
+                } else {
+                    hasMore = false;
+                }
+            }
+            
+            if (allTools.length > 0) {
+                this.tools = allTools;
+                this.filteredTools = [...this.tools];
+                console.log(`Successfully loaded ${this.tools.length} tools from database`);
+            } else {
+                console.log('Database empty or unavailable, loading fallback tools data...');
+                this.tools = this.getFallbackTools();
+                this.filteredTools = [...this.tools];
+                console.log(`Loaded ${this.tools.length} tools from fallback`);
+            }
+        } catch (error) {
+            console.error('Error loading tools from database:', error);
+            console.log('Loading fallback tools data...');
+            this.tools = this.getFallbackTools();
+            this.filteredTools = [...this.tools];
+            console.log(`Loaded ${this.tools.length} tools from fallback`);
+        }
+        
         this.populateToolFilters();
         this.updateToolCount();
     }

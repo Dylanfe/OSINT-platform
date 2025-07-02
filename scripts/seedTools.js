@@ -248,7 +248,7 @@ const osintTools = [
         requiresApiKey: false,
         tags: ["people", "phone", "address", "directory"],
         features: ["People search", "Reverse phone lookup", "Address search"],
-        inputTypes: ["name", "phone", "address"],
+        inputTypes: ["name", "phone", "text"],
         outputTypes: ["html"],
         accuracy: "medium",
         reliability: "medium",
@@ -292,7 +292,7 @@ const osintTools = [
         tags: ["geolocation", "visual", "training", "geography"],
         features: ["Visual geolocation training", "Street view analysis", "Geographic challenges"],
         inputTypes: ["image"],
-        outputTypes: ["coordinates"],
+        outputTypes: ["text"],
         accuracy: "variable",
         reliability: "medium",
         opsecRisk: "low",
@@ -469,7 +469,7 @@ async function seedDatabase() {
                 const tool = await Tool.create({
                     ...toolData,
                     metadata: {
-                        source: 'seed-script'
+                        source: 'import'
                     }
                 });
                 console.log(`Created tool: ${tool.name}`);
