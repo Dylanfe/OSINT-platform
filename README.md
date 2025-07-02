@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen.svg)](https://nodejs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-4.4%2B-green.svg)](https://www.mongodb.com/)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/your-username/osint-nexus/issues)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/your-username/osint-platform/issues)
 
 An advanced Open Source Intelligence (OSINT) platform that provides comprehensive tools and API integrations for cybersecurity professionals, researchers, and investigators.
 
@@ -43,7 +43,7 @@ An advanced Open Source Intelligence (OSINT) platform that provides comprehensiv
 1. **Clone the repository**
    ```bash
    git clone
-   cd osint-nexus
+   cd osint-platform
    ```
 
 2. **Install dependencies**
@@ -60,7 +60,7 @@ An advanced Open Source Intelligence (OSINT) platform that provides comprehensiv
    ```env
    NODE_ENV=development
    PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/osint-nexus
+   MONGODB_URI=mongodb://localhost:27017/osint-platform
    JWT_SECRET=your-super-secret-jwt-key
    
    # Add your API keys for OSINT services
@@ -150,7 +150,7 @@ fetch('/api/osint/domain-lookup', {
 |----------|-------------|---------|
 | `NODE_ENV` | Environment mode | `development` |
 | `PORT` | Server port | `5000` |
-| `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/osint-nexus` |
+| `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/osint-platform` |
 | `JWT_SECRET` | JWT signing secret | Required |
 | `JWT_EXPIRE` | JWT expiration time | `30d` |
 
@@ -221,7 +221,7 @@ npm run test:coverage
 ## 📁 Project Structure
 
 ```
-osint-nexus/
+osint-platform/
 ├── middleware/          # Express middleware
 ├── models/             # Database models
 ├── public/             # Static frontend files
