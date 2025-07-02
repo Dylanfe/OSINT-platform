@@ -50,10 +50,56 @@ class OSINTHub {
         }
     }
 
+    toggleMobileMenu() {
+        const navMenu = document.querySelector('.nav-menu');
+        const mobileToggle = document.querySelector('.mobile-menu-toggle');
+        
+        if (navMenu && mobileToggle) {
+            const isVisible = navMenu.style.display === 'flex';
+            
+            if (isVisible) {
+                // Hide menu
+                navMenu.style.display = 'none';
+                mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                // Show menu
+                navMenu.style.display = 'flex';
+                navMenu.style.position = 'absolute';
+                navMenu.style.top = '100%';
+                navMenu.style.left = '0';
+                navMenu.style.right = '0';
+                navMenu.style.backgroundColor = 'var(--bg-primary)';
+                navMenu.style.border = '1px solid var(--border-color)';
+                navMenu.style.borderTop = 'none';
+                navMenu.style.flexDirection = 'column';
+                navMenu.style.padding = '1rem';
+                navMenu.style.gap = '1rem';
+                navMenu.style.boxShadow = 'var(--shadow-lg)';
+                navMenu.style.zIndex = '200';
+                mobileToggle.innerHTML = '<i class="fas fa-times"></i>';
+            }
+        }
+    }
+
+    closeMobileMenu() {
+        const navMenu = document.querySelector('.nav-menu');
+        const mobileToggle = document.querySelector('.mobile-menu-toggle');
+        
+        if (navMenu && mobileToggle) {
+            navMenu.style.display = 'none';
+            mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        }
+    }
+
     setupEventListeners() {
         // Theme toggle
         document.getElementById('themeToggle')?.addEventListener('click', () => {
             this.toggleTheme();
+        });
+
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle')?.addEventListener('click', () => {
+            this.toggleMobileMenu();
         });
 
         // Navigation links
@@ -62,6 +108,9 @@ class OSINTHub {
                 e.preventDefault();
                 const section = e.target.getAttribute('data-section') || e.target.closest('[data-section]').getAttribute('data-section');
                 this.showSection(section);
+                
+                // Close mobile menu if it's open
+                this.closeMobileMenu();
                 return false;
             }
 
