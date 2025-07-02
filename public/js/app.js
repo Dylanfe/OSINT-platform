@@ -1452,7 +1452,7 @@ class OSINTHub {
                 </div>
                 <div class="category-meta">
                     <span>${category.toolCount || 0} tools</span>
-                    <span>★ ${(category.averageRating || 4.0).toFixed(1)}</span>
+<span>${(category.averageRating || 4.0).toFixed(1)}</span>
                 </div>
             </div>
         `).join('');
@@ -2360,7 +2360,7 @@ class OSINTHub {
         threatDot.bindPopup(`
             <div style="color: #333; min-width: 200px;">
                 <div style="background: ${threat.color}; color: white; padding: 8px; margin: -8px -8px 8px -8px; font-weight: bold;">
-                    🚨 THREAT DETECTED
+THREAT DETECTED
                 </div>
                 <strong>Type:</strong> ${threat.name}<br>
                 <strong>Location:</strong> ${cityName}<br>

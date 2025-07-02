@@ -475,7 +475,7 @@ class OSINTHub {
                 </div>
                 <div class="category-meta">
                     <span>${category.toolCount || 0} tools</span>
-                    <span>★ ${(category.averageRating || 4.0).toFixed(1)}</span>
+<span>${(category.averageRating || 4.0).toFixed(1)}</span>
                 </div>
             </div>
         `).join('');

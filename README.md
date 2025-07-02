@@ -1,4 +1,4 @@
-# OSINT 🔍
+# OSINT
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen.svg)](https://nodejs.org/)
@@ -11,7 +11,7 @@ An advanced Open Source Intelligence (OSINT) platform that provides comprehensiv
 
 # osint-platform.web.app
 
-## 🎯 Features
+## Features
 
 - **Multi-Tool Integration**: Seamless integration with popular OSINT APIs (Shodan, VirusTotal, Have I Been Pwned, etc.)
 - **Real-time Investigation**: Live data gathering and analysis with Socket.IO
@@ -23,7 +23,7 @@ An advanced Open Source Intelligence (OSINT) platform that provides comprehensiv
 - **Rate Limiting**: Built-in protection against API abuse
 - **Extensible Architecture**: Easy to add new tools and integrations
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB with Mongoose ODM
@@ -34,7 +34,7 @@ An advanced Open Source Intelligence (OSINT) platform that provides comprehensiv
 - **Testing**: Jest, Supertest
 - **Logging**: Winston, Morgan
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -99,7 +99,7 @@ An advanced Open Source Intelligence (OSINT) platform that provides comprehensiv
 7. **Access the application**
    Open your browser and navigate to `http://localhost:5000`
 
-## 📖 API Documentation
+## API Documentation
 
 ### Base URL
 ```
@@ -146,7 +146,7 @@ fetch('/api/osint/domain-lookup', {
 })
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -170,7 +170,7 @@ The platform supports integration with numerous OSINT services. Add your API key
 - **SecurityTrails**: DNS and domain data
 - **And many more...**
 
-## 🔌 Adding New Tools
+## Adding New Tools
 
 1. **Create a tool definition**
    ```javascript
@@ -207,7 +207,7 @@ The platform supports integration with numerous OSINT services. Add your API key
    });
    ```
 
-## 🧪 Testing
+## Testing
 
 Run the test suite:
 
@@ -222,7 +222,7 @@ npm run test:watch
 npm run test:coverage
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 osint-platform/
@@ -251,7 +251,7 @@ osint-platform/
 7. Push to the branch (`git push origin feature/feature`)
 8. Open a Pull Request
 
-## 🔒 Security
+## Security
 
 ### Reporting Security Issues
 
@@ -265,11 +265,11 @@ If you discover a security vulnerability, please refer to [dylanf.dev] instead o
 - Regularly update dependencies
 - Follow OWASP security guidelines
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🗺️ Roadmap
+## Roadmap
 
 - [ ] Advanced visualization dashboards
 - [ ] Machine learning threat detection
@@ -282,4 +282,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**⚠️ Disclaimer**: This tool is intended for legitimate security research and authorized testing only. Users are responsible for complying with applicable laws and regulations. The developers assume no liability for misuse of this software.
+**Disclaimer**: This tool is intended for legitimate security research and authorized testing only. Users are responsible for complying with applicable laws and regulations. The developers assume no liability for misuse of this software.
