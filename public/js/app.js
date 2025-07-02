@@ -86,12 +86,23 @@ class OSINTHub {
         const mobileToggle = document.querySelector('.mobile-menu-toggle');
         
         if (navMenu && mobileToggle) {
-            navMenu.style.display = 'none';
-            mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            // Only hide nav menu if on mobile (<= 768px)
+            if (window.innerWidth <= 768) {
+                navMenu.style.display = 'none';
+                mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            }
         }
     }
 
     setupEventListeners() {
+        // Ensure nav-menu is visible on desktop resize
+        window.addEventListener('resize', () => {
+            const navMenu = document.querySelector('.nav-menu');
+            if (navMenu && window.innerWidth > 768) {
+                navMenu.style.display = '';
+            }
+        });
+
         // Theme toggle
         document.getElementById('themeToggle')?.addEventListener('click', () => {
             this.toggleTheme();
@@ -196,6 +207,12 @@ class OSINTHub {
                 element.classList.remove('active');
             }
         });
+
+        // Always reset nav-menu display for desktop
+        const navMenu = document.querySelector('.nav-menu');
+        if (navMenu) {
+            navMenu.style.display = '';
+        }
 
         // Show requested section
         const targetSection = document.getElementById(sectionName + 'Section');
