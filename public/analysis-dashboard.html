@@ -195,6 +195,50 @@
             font-size: 1.25rem;
             cursor: pointer;
         }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-primary);
+                border-top: 1px solid var(--border-color);
+                flex-direction: column;
+                gap: 0;
+                box-shadow: var(--shadow-lg);
+                z-index: 1000;
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .nav-link {
+                padding: 1rem 1.5rem;
+                border-bottom: 1px solid var(--border-color);
+                width: 100%;
+                text-align: left;
+            }
+
+            .nav-link:last-child {
+                border-bottom: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .header-container {
+                padding: 0 1rem;
+            }
+
+            .header-actions {
+                gap: 0.5rem;
+            }
+        }
         
         .analysis-dashboard {
             padding: 2rem;
@@ -659,8 +703,36 @@
         }
 
         @media (max-width: 768px) {
+            .analysis-dashboard {
+                padding: 1rem;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+
+            .dashboard-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .dashboard-actions .btn {
+                justify-content: center;
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+
             .dashboard-grid {
                 grid-template-columns: 1fr;
+                gap: 1rem;
             }
             
             .form-grid {
@@ -669,6 +741,113 @@
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .analysis-panel {
+                padding: 1rem;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+                gap: 0;
+            }
+
+            .tab {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+                flex: 1;
+                min-width: 0;
+                text-align: center;
+            }
+
+            .panel-title {
+                font-size: 1.125rem;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .network-graph {
+                height: 300px;
+            }
+
+            .timeline-container {
+                height: 250px;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 2% auto;
+                padding: 1rem;
+                max-height: 95vh;
+            }
+
+            .data-point-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .session-meta {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .session-stats {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .timeline-item {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-left: 0.5rem;
+                padding: 0.5rem;
+            }
+
+            .timeline-date {
+                min-width: auto;
+                margin-right: 0;
+                margin-bottom: 0.25rem;
+            }
+
+            .visualization-container {
+                padding: 1rem;
+            }
+
+            .risk-assessment {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-title {
+                font-size: 1.25rem;
+            }
+
+            .logo span {
+                display: none;
+            }
+
+            .tab {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -752,20 +931,6 @@
                 
                 <div class="sessions-list" id="sessionsList">
                     <!-- Sessions will be populated here -->
-                    <div class="session-card" data-session-id="sample" onclick="alert('Dashboard loading...')">
-                        <div class="session-header">
-                            <h4>Sample Investigation</h4>
-                            <span class="priority-badge priority-medium">medium</span>
-                        </div>
-                        <div class="session-meta">
-                            <span><i class="fas fa-target"></i> person</span>
-                            <span><i class="fas fa-clock"></i> Today</span>
-                        </div>
-                        <div class="session-stats">
-                            <span>0 data points</span>
-                            <span>0 tools used</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -846,11 +1011,11 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label" for="sessionTitle">Session Title</label>
-                        <input type="text" id="sessionTitle" class="form-input" required>
+                        <input type="text" id="sessionTitle" name="sessionTitle" class="form-input" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="targetType">Target Type</label>
-                        <select id="targetType" class="form-select" required>
+                        <select id="targetType" name="targetType" class="form-select" required>
                             <option value="">Select target type</option>
                             <option value="person">Person</option>
                             <option value="organization">Organization</option>
@@ -864,7 +1029,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="priority">Priority</label>
-                        <select id="priority" class="form-select">
+                        <select id="priority" name="priority" class="form-select">
                             <option value="low">Low</option>
                             <option value="medium" selected>Medium</option>
                             <option value="high">High</option>
@@ -874,7 +1039,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="sessionDescription">Description</label>
-                    <textarea id="sessionDescription" class="form-textarea" placeholder="Optional description of the analysis session"></textarea>
+                    <textarea id="sessionDescription" name="sessionDescription" class="form-textarea" placeholder="Optional description of the analysis session"></textarea>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Create Session</button>
@@ -892,7 +1057,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label" for="dataType">Data Type</label>
-                        <select id="dataType" class="form-select" required>
+                        <select id="dataType" name="dataType" class="form-select" required>
                             <option value="">Select data type</option>
                             <option value="email">Email</option>
                             <option value="domain">Domain</option>
@@ -916,28 +1081,28 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="dataKey">Data Key</label>
-                        <input type="text" id="dataKey" class="form-input" required placeholder="e.g., Email Address, Domain Name">
+                        <input type="text" id="dataKey" name="dataKey" class="form-input" required placeholder="e.g., Email Address, Domain Name">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="dataValue">Data Value</label>
-                        <input type="text" id="dataValue" class="form-input" required placeholder="e.g., user@example.com">
+                        <input type="text" id="dataValue" name="dataValue" class="form-input" required placeholder="e.g., user@example.com">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="sourceTool">Source Tool</label>
-                        <select id="sourceTool" class="form-select" required>
+                        <select id="sourceTool" name="sourceTool" class="form-select" required>
                             <option value="">Select source tool</option>
                             <!-- Tool options will be populated dynamically -->
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="confidence">Confidence Level</label>
-                        <input type="range" id="confidence" class="form-input" min="0" max="100" value="50">
+                        <input type="range" id="confidence" name="confidence" class="form-input" min="0" max="100" value="50">
                         <span id="confidenceValue">50%</span>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="tags">Tags (comma-separated)</label>
-                    <input type="text" id="tags" class="form-input" placeholder="e.g., verified, high-risk, public">
+                    <input type="text" id="tags" name="tags" class="form-input" placeholder="e.g., verified, high-risk, public">
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Add Data Point</button>

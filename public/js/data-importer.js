@@ -88,32 +88,37 @@ class OSINTDataImporter {
                     
                     <!-- API Import Tab -->
                     <div id="api-tab" class="import-tab-content">
-                        <div class="form-group">
-                            <label class="form-label">API Endpoint</label>
-                            <input type="url" id="apiEndpoint" class="form-input" 
-                                placeholder="https://api.example.com/data">
-                        </div>
-                        
-                        <div class="form-grid">
+                        <form id="apiImportForm">
+                            <!-- Hidden username field for accessibility compliance -->
+                            <input type="text" name="username" autocomplete="username" style="display: none;" aria-hidden="true">
+                            
                             <div class="form-group">
-                                <label class="form-label">API Key (if required)</label>
-                                <input type="password" id="apiKey" class="form-input" 
-                                    placeholder="Your API key">
+                                <label class="form-label">API Endpoint</label>
+                                <input type="url" id="apiEndpoint" class="form-input" 
+                                    placeholder="https://api.example.com/data">
                             </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">API Key (if required)</label>
+                                    <input type="password" id="apiKey" class="form-input" 
+                                        placeholder="Your API key" autocomplete="current-password" name="apikey">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Request Method</label>
+                                    <select id="apiMethod" class="form-select">
+                                        <option value="GET">GET</option>
+                                        <option value="POST">POST</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
                             <div class="form-group">
-                                <label class="form-label">Request Method</label>
-                                <select id="apiMethod" class="form-select">
-                                    <option value="GET">GET</option>
-                                    <option value="POST">POST</option>
-                                </select>
+                                <label class="form-label">Headers (JSON format)</label>
+                                <textarea id="apiHeaders" class="form-textarea" rows="4" 
+                                    placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'></textarea>
                             </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Headers (JSON format)</label>
-                            <textarea id="apiHeaders" class="form-textarea" rows="4" 
-                                placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'></textarea>
-                        </div>
+                        </form>
                     </div>
                     
                     <!-- Bulk Import Tab -->

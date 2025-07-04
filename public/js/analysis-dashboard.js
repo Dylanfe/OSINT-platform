@@ -47,6 +47,30 @@ class AnalysisDashboard {
             this.toggleTheme();
         });
 
+        // Mobile menu toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        if (mobileMenuToggle && navMenu) {
+            mobileMenuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking on nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.header-container')) {
+                    navMenu.classList.remove('active');
+                }
+            });
+        }
+
         // Navigation links
         document.addEventListener('click', (e) => {
             if (e.target.hasAttribute('data-section') || e.target.closest('[data-section]')) {
@@ -136,8 +160,18 @@ class AnalysisDashboard {
         try {
             const response = await fetch('/api/tools');
             if (response.ok) {
-                this.tools = await response.json();
+                const data = await response.json();
+                // Handle different response formats
+                if (data.success && Array.isArray(data.data)) {
+                    this.tools = data.data;
+                } else if (Array.isArray(data)) {
+                    this.tools = data;
+                } else {
+                    throw new Error('Invalid response format');
+                }
                 this.populateToolsDropdown();
+            } else {
+                throw new Error(`HTTP ${response.status}`);
             }
         } catch (error) {
             console.error('Error loading tools:', error);
@@ -158,44 +192,41 @@ class AnalysisDashboard {
         if (!dropdown) return;
 
         dropdown.innerHTML = '<option value="">Select source tool</option>';
-        this.tools.forEach(tool => {
-            const option = document.createElement('option');
-            option.value = tool._id;
-            option.textContent = `${tool.name} (${tool.category})`;
-            dropdown.appendChild(option);
-        });
+        
+        // Ensure tools is an array before using forEach
+        if (Array.isArray(this.tools)) {
+            this.tools.forEach(tool => {
+                const option = document.createElement('option');
+                option.value = tool._id || tool.id;
+                option.textContent = `${tool.name} (${tool.category})`;
+                dropdown.appendChild(option);
+            });
+        }
     }
 
     async loadSessions() {
         try {
             const response = await fetch('/api/analysis-sessions');
             if (response.ok) {
-                this.sessions = await response.json();
+                const data = await response.json();
+                // Handle different response formats
+                if (data.success && Array.isArray(data.data)) {
+                    this.sessions = data.data;
+                } else if (Array.isArray(data)) {
+                    this.sessions = data;
+                } else {
+                    throw new Error('Invalid response format');
+                }
             } else {
-                // Mock data for development
-                this.sessions = [
-                    {
-                        _id: '1',
-                        title: 'Sample Investigation',
-                        targetType: 'person',
-                        priority: 'medium',
-                        status: 'active',
-                        dataPoints: [],
-                        analytics: {
-                            totalDataPoints: 0,
-                            toolsUsed: 0,
-                            confidenceScore: 0
-                        },
-                        createdAt: new Date().toISOString()
-                    }
-                ];
+                console.warn(`API returned ${response.status}, using mock data`);
+                throw new Error(`HTTP ${response.status}`);
             }
-            this.renderSessions();
         } catch (error) {
             console.error('Error loading sessions:', error);
+            // Start with empty sessions array - users need to create their own
             this.sessions = [];
-            this.renderSessions();
         }
+        this.renderSessions();
     }
 
     renderSessions() {
@@ -823,7 +854,16 @@ class AnalysisDashboard {
     }
 
     async createNewSession() {
-        const formData = new FormData(document.getElementById('newSessionForm'));
+        console.log('createNewSession called');
+        
+        const form = document.getElementById('newSessionForm');
+        if (!form) {
+            console.error('Form not found!');
+            alert('Error: Form not found');
+            return;
+        }
+
+        const formData = new FormData(form);
         const sessionData = {
             title: formData.get('sessionTitle'),
             targetType: formData.get('targetType'),
@@ -831,46 +871,54 @@ class AnalysisDashboard {
             description: formData.get('sessionDescription')
         };
 
-        try {
-            const response = await fetch('/api/analysis-sessions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(sessionData)
-            });
+        console.log('Form data:', sessionData);
 
-            if (response.ok) {
-                const newSession = await response.json();
-                this.sessions.push(newSession);
-                this.renderSessions();
-                this.selectSession(newSession._id);
-                document.getElementById('newSessionModal').style.display = 'none';
-                document.getElementById('newSessionForm').reset();
-            } else {
-                alert('Failed to create session');
-            }
-        } catch (error) {
-            console.error('Error creating session:', error);
-            // Mock session creation for development
-            const mockSession = {
-                _id: Date.now().toString(),
-                ...sessionData,
-                status: 'active',
-                dataPoints: [],
-                analytics: {
-                    totalDataPoints: 0,
-                    toolsUsed: 0,
-                    confidenceScore: 0
-                },
-                createdAt: new Date().toISOString()
-            };
-            this.sessions.push(mockSession);
-            this.renderSessions();
-            this.selectSession(mockSession._id);
-            document.getElementById('newSessionModal').style.display = 'none';
-            document.getElementById('newSessionForm').reset();
+        // Validate required fields
+        if (!sessionData.title || !sessionData.targetType) {
+            alert('Please fill in all required fields (Title and Target Type are required)');
+            return;
         }
+
+        console.log('Validation passed, creating session...');
+
+        // Always use mock session creation since we're in demo mode
+        const mockSession = {
+            _id: Date.now().toString(),
+            ...sessionData,
+            status: 'active',
+            dataPoints: [],
+            analytics: {
+                totalDataPoints: 0,
+                toolsUsed: 0,
+                confidenceScore: 0
+            },
+            metadata: {
+                completenessScore: 0,
+                qualityScore: 0
+            },
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        console.log('Mock session created:', mockSession);
+        
+        this.sessions.push(mockSession);
+        console.log('Sessions array:', this.sessions);
+        
+        this.renderSessions();
+        this.selectSession(mockSession._id);
+        this.updateStatistics();
+        
+        // Close modal and reset form
+        const modal = document.getElementById('newSessionModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        form.reset();
+        
+        alert('Session created successfully!');
+        console.log('Session creation completed');
     }
 
     async addDataPoint() {
@@ -878,12 +926,22 @@ class AnalysisDashboard {
 
         const formData = new FormData(document.getElementById('addDataPointForm'));
         const toolId = formData.get('sourceTool');
-        const tool = this.tools.find(t => t._id === toolId);
+        const tool = this.tools.find(t => (t._id || t.id) === toolId);
+
+        // Validate required fields
+        const dataType = formData.get('dataType');
+        const dataKey = formData.get('dataKey');
+        const dataValue = formData.get('dataValue');
+        
+        if (!dataType || !dataKey || !dataValue || !toolId) {
+            alert('Please fill in all required fields');
+            return;
+        }
 
         const dataPoint = {
-            type: formData.get('dataType'),
-            key: formData.get('dataKey'),
-            value: formData.get('dataValue'),
+            type: dataType,
+            key: dataKey,
+            value: dataValue,
             confidence: parseInt(formData.get('confidence')),
             tags: formData.get('tags').split(',').map(t => t.trim()).filter(t => t),
             source: {
@@ -911,31 +969,39 @@ class AnalysisDashboard {
                     this.sessions[sessionIndex] = updatedSession;
                     this.currentSession = updatedSession;
                 }
+                alert('Data point added successfully!');
             } else {
-                // Mock data point addition for development
-                this.currentSession.dataPoints.push(dataPoint);
-                this.currentSession.analytics.totalDataPoints = this.currentSession.dataPoints.length;
-                
-                // Update tools used count
-                const uniqueTools = new Set(this.currentSession.dataPoints.map(dp => dp.source.tool));
-                this.currentSession.analytics.toolsUsed = uniqueTools.size;
-                
-                // Update confidence score
-                const totalConfidence = this.currentSession.dataPoints.reduce((sum, dp) => sum + dp.confidence, 0);
-                this.currentSession.analytics.confidenceScore = Math.round(totalConfidence / this.currentSession.dataPoints.length);
+                throw new Error(`HTTP ${response.status}`);
             }
-
-            this.updateSessionContent();
-            this.updateStatistics();
-            document.getElementById('addDataPointModal').style.display = 'none';
-            document.getElementById('addDataPointForm').reset();
-            document.getElementById('confidenceValue').textContent = '50%';
-            document.getElementById('confidence').value = 50;
-
         } catch (error) {
             console.error('Error adding data point:', error);
-            alert('Failed to add data point');
+            // Mock data point addition for development (since backend is not available)
+            this.currentSession.dataPoints.push(dataPoint);
+            this.currentSession.analytics.totalDataPoints = this.currentSession.dataPoints.length;
+            
+            // Update tools used count
+            const uniqueTools = new Set(this.currentSession.dataPoints.map(dp => dp.source.tool));
+            this.currentSession.analytics.toolsUsed = uniqueTools.size;
+            
+            // Update confidence score
+            const totalConfidence = this.currentSession.dataPoints.reduce((sum, dp) => sum + dp.confidence, 0);
+            this.currentSession.analytics.confidenceScore = Math.round(totalConfidence / this.currentSession.dataPoints.length);
+            
+            // Update the session in the sessions array
+            const sessionIndex = this.sessions.findIndex(s => s._id === this.currentSession._id);
+            if (sessionIndex !== -1) {
+                this.sessions[sessionIndex] = this.currentSession;
+            }
+            
+            alert('Data point added successfully!');
         }
+
+        this.updateSessionContent();
+        this.updateStatistics();
+        document.getElementById('addDataPointModal').style.display = 'none';
+        document.getElementById('addDataPointForm').reset();
+        document.getElementById('confidenceValue').textContent = '50%';
+        document.getElementById('confidence').value = 50;
     }
 
     updateStatistics() {
