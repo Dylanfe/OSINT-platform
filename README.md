@@ -99,6 +99,131 @@ An advanced Open Source Intelligence (OSINT) platform that provides comprehensiv
 7. **Access the application**
    Open your browser and navigate to `http://localhost:5000`
 
+## Advanced Analysis Dashboard
+
+The Advanced Analysis Dashboard provides a comprehensive interface for managing OSINT investigations with session-based tracking, data visualization, and professional reporting capabilities.
+
+### Accessing the Dashboard
+
+Navigate to the Advanced Analysis Dashboard:
+```
+http://localhost:5000/analysis-dashboard.html
+```
+
+### Creating Investigation Sessions
+
+1. **Start a new investigation**
+   - Click the **"New Session"** button in the dashboard header
+   - Fill out the investigation details:
+     - **Session Title**: Name your investigation (e.g., "Domain Security Assessment")
+     - **Target Type**: Select investigation focus (Person, Organization, Domain, IP Address, Incident, Investigation, Threat, Other)
+     - **Priority**: Set urgency level (Low, Medium, High, Critical)
+     - **Description**: Optional investigation context and objectives
+
+2. **Session management**
+   - All active sessions appear in the left panel
+   - Click any session to activate it and view details
+   - Sessions automatically track progress and metadata
+
+### Adding OSINT Data Points
+
+1. **Navigate to Data Points tab** within your active session
+
+2. **Add evidence systematically**
+   - Click **"Add Data Point"** to record findings
+   - **Data Type**: Choose from 18+ categories (Email, Domain, IP Address, Username, Phone Number, Social Profile, Hash, URL, Coordinates, etc.)
+   - **Data Key/Value**: Specify the evidence description and actual data
+   - **Source Tool**: Select from 204+ integrated OSINT tools (Shodan, VirusTotal, WHOIS, Maltego, SpiderFoot, theHarvester, etc.)
+   - **Confidence Level**: Rate reliability (0-100%)
+   - **Tags**: Add keywords for organization and filtering
+
+### Bulk Data Import
+
+The dashboard supports importing large datasets from multiple sources:
+
+```bash
+# Supported formats
+- JSON, CSV, XML, TXT files
+- Direct API integration with 204+ OSINT tools
+- Bulk domain lists, IP ranges, email lists, URL collections
+- Hash databases and cryptocurrency addresses
+```
+
+1. **Click "Import Data"** in the dashboard header
+2. **Select format** and upload your data file
+3. **Map fields** to dashboard data types
+4. **Review and import** - data automatically populates your active session
+
+### Analysis and Visualization
+
+Navigate through analysis tabs to examine your investigation:
+
+#### **Overview Tab**
+- **Session summary** with risk assessment indicators
+- **Investigation metadata** (target type, priority, creation date)
+- **Quick statistics** (total data points, tools used, average confidence)
+- **Automated risk scoring** based on evidence quality and quantity
+
+#### **Analytics Tab**
+- **Pattern Analysis**: Automatically detected connections between data points
+- **Risk Factor Assessment**: Identified threats, vulnerabilities, or concerns
+- **Data Quality Metrics**: Completeness and reliability scoring
+- **Correlation Detection**: Relationships across different evidence types
+
+#### **Visualizations Tab**
+- **Timeline View**: Chronological sequence of evidence discovery
+- **Data Distribution Charts**: Visual breakdown of evidence types and sources
+- **Network Graphs**: Interactive relationship mapping between data points
+- **Geographic Plotting**: Location-based evidence visualization
+
+### Professional Reporting
+
+Generate comprehensive investigation reports:
+
+1. **Click "Export Report"** in the dashboard header
+2. **Automated report generation** includes:
+   - Executive summary with key findings
+   - Complete evidence inventory with sources
+   - Risk assessment and scoring
+   - Timeline analysis and patterns
+   - Professional formatting for stakeholders
+
+### Best Practices for OSINT Investigations
+
+#### **Systematic Approach**
+- Begin with a single data point (email, domain, username)
+- Expand investigation scope based on initial findings
+- Document all sources and maintain evidence chain
+
+#### **Data Quality Management**
+- Always specify the source tool for each data point
+- Set appropriate confidence levels based on source reliability
+- Use descriptive tags for efficient evidence categorization
+- Cross-reference findings across multiple sources
+
+#### **Investigation Workflow Example**
+
+```bash
+# Target: Investigating suspicious domain "example-threat.com"
+
+1. Create Session: "Threat Domain Analysis" (High Priority)
+2. Initial Data Points:
+   - Domain: example-threat.com (Manual Analysis, 95% confidence)
+   - IP Address: 192.168.1.100 (WHOIS lookup, 100% confidence)
+   - Registration Date: 2024-01-15 (Domain registrar, 100% confidence)
+   - SSL Certificate: Let's Encrypt (SSL analyzer, 90% confidence)
+
+3. Bulk Import: Shodan scan results, DNS enumeration data
+4. Analysis: Review risk factors, timeline, connection patterns
+5. Export: Generate professional threat assessment report
+```
+
+#### **Security and OPSEC**
+- Conduct investigations from dedicated virtual machines
+- Use VPN connections for operational security
+- Never access potentially malicious resources from production systems
+- Follow organizational policies for data handling and retention
+
 ## API Documentation
 
 ### Base URL
