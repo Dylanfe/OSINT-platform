@@ -118,6 +118,13 @@ class OSINTHub {
             if (e.target.hasAttribute('data-section') || e.target.closest('[data-section]')) {
                 e.preventDefault();
                 const section = e.target.getAttribute('data-section') || e.target.closest('[data-section]').getAttribute('data-section');
+                
+                // Handle advanced-analysis specially - redirect to separate page
+                if (section === 'advanced-analysis') {
+                    window.location.href = 'analysis-dashboard.html';
+                    return false;
+                }
+                
                 this.showSection(section);
                 
                 // Close mobile menu if it's open

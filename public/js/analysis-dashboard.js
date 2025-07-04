@@ -4,17 +4,61 @@ class AnalysisDashboard {
         this.sessions = [];
         this.tools = [];
         this.charts = {};
+        this.currentTheme = localStorage.getItem('osint-hub-theme') || 'light';
         this.init();
     }
 
     async init() {
+        this.initializeTheme();
         this.setupEventListeners();
         await this.loadTools();
         await this.loadSessions();
         this.updateStatistics();
     }
 
+    initializeTheme() {
+        document.documentElement.setAttribute('data-theme', this.currentTheme);
+        this.updateThemeIcon();
+    }
+
+    toggleTheme() {
+        this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', this.currentTheme);
+        localStorage.setItem('osint-hub-theme', this.currentTheme);
+        this.updateThemeIcon();
+        
+        // Add smooth transition
+        document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+        setTimeout(() => {
+            document.body.style.transition = '';
+        }, 300);
+    }
+
+    updateThemeIcon() {
+        const themeIcon = document.getElementById('themeIcon');
+        if (themeIcon) {
+            themeIcon.className = this.currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+    }
+
     setupEventListeners() {
+        // Theme toggle
+        document.getElementById('themeToggle')?.addEventListener('click', () => {
+            this.toggleTheme();
+        });
+
+        // Navigation links
+        document.addEventListener('click', (e) => {
+            if (e.target.hasAttribute('data-section') || e.target.closest('[data-section]')) {
+                const section = e.target.getAttribute('data-section') || e.target.closest('[data-section]').getAttribute('data-section');
+                
+                // Handle navigation to different pages
+                if (section === 'home' || section === 'tools' || section === 'search' || section === 'dashboard' || section === 'about') {
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+
         // Modal controls
         const newSessionBtn = document.getElementById('newSessionBtn');
         const newSessionModal = document.getElementById('newSessionModal');
