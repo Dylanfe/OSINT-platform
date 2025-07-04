@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Hub - Advanced Analysis Dashboard</title>
+    <link rel="icon" type="image/webp" href="favicon/osint-favicon.webp">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js and plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    
+    <!-- D3.js for advanced visualizations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Leaflet for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        :root {
+            /* Light theme */
+            --primary-color: #1a365d;
+            --primary-light: #2d5a87;
+            --secondary-color: #e2e8f0;
+            --accent-color: #3182ce;
+            --accent-light: #4299e1;
+            --success-color: #38a169;
+            --warning-color: #ed8936;
+            --danger-color: #e53e3e;
+            --info-color: #3182ce;
+            
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-tertiary: #edf2f7;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'Space Mono', 'Courier New', monospace;
+        }
+
+        [data-theme="dark"] {
+            /* Dark theme */
+            --primary-color: #3182ce;
+            --primary-light: #4299e1;
+            --secondary-color: #2d3748;
+            --accent-color: #63b3ed;
+            --accent-light: #90cdf4;
+            --success-color: #68d391;
+            --warning-color: #fbb02a;
+            --danger-color: #fc8181;
+            --info-color: #63b3ed;
+            
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-tertiary: #4a5568;
+            --text-primary: #f7fafc;
+            --text-secondary: #e2e8f0;
+            --text-muted: #a0aec0;
+            --border-color: #4a5568;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 4rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .logo:hover {
+            color: var(--accent-color);
+        }
+
+        .logo-icon {
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 0.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+        
+        .analysis-dashboard {
+            padding: 2rem;
+            background: var(--bg-primary);
+            min-height: 100vh;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .dashboard-title {
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .analysis-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .panel-title {
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .data-points-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            background: var(--bg-primary);
+        }
+        
+        .data-point {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .data-point-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .data-point-type {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .confidence-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .confidence-high {
+            background: #10b981;
+            color: white;
+        }
+        
+        .confidence-medium {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .confidence-low {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .visualization-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+        
+        .network-graph {
+            width: 100%;
+            height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        
+        .timeline-container {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-left: 3px solid var(--accent-color);
+            margin-left: 1rem;
+            margin-bottom: 1rem;
+            background: var(--bg-primary);
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .timeline-date {
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-right: 1rem;
+            min-width: 120px;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-source {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        .risk-assessment {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .risk-low {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+        }
+        
+        .risk-medium {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid #f59e0b;
+        }
+        
+        .risk-high {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+        }
+        
+        .risk-critical {
+            background: rgba(153, 27, 27, 0.1);
+            border: 1px solid #991b1b;
+        }
+        
+        .risk-icon {
+            font-size: 1.5rem;
+        }
+        
+        .risk-low .risk-icon {
+            color: #10b981;
+        }
+        
+        .risk-medium .risk-icon {
+            color: #f59e0b;
+        }
+        
+        .risk-high .risk-icon,
+        .risk-critical .risk-icon {
+            color: #ef4444;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+        
+        .tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: var(--bg-secondary);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            color: var(--text-secondary);
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            color: var(--text-primary);
+        }
+        
+        /* Session Card Styles */
+        .session-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .session-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+        
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .session-header h4 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .priority-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .priority-medium {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .session-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .session-meta i {
+            margin-right: 0.25rem;
+        }
+        
+        .session-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo" data-section="home">
+                <div class="logo-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <span>OSINT Hub</span>
+            </a>
+
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link" data-section="home">Home</a>
+                <a href="index.html#toolsSection" class="nav-link" data-section="tools">Tools</a>
+                <a href="index.html#searchSection" class="nav-link" data-section="search">Search</a>
+                <a href="index.html#dashboardSection" class="nav-link" data-section="dashboard">Dashboard</a>
+                <a href="analysis.html" class="nav-link" data-section="analysis">Basic Analysis</a>
+                <a href="analysis-dashboard.html" class="nav-link active" data-section="advanced-analysis">Advanced Analysis</a>
+                <a href="index.html#aboutSection" class="nav-link" data-section="about">About</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="analysis-dashboard">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Advanced Analysis Dashboard</h1>
+            <div class="dashboard-actions">
+                <button class="btn btn-secondary" id="importDataBtn">
+                    <i class="fas fa-upload"></i> Import Data
+                </button>
+                <button class="btn btn-secondary" id="exportReportBtn">
+                    <i class="fas fa-download"></i> Export Report
+                </button>
+                <button class="btn btn-primary" id="newSessionBtn">
+                    <i class="fas fa-plus"></i> New Session
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalSessions">0</div>
+                <div class="stat-label">Active Sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalDataPoints">0</div>
+                <div class="stat-label">Data Points</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="toolsUsed">0</div>
+                <div class="stat-label">Tools Used</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgConfidence">0%</div>
+                <div class="stat-label">Avg Confidence</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Left Panel - Session Management -->
+            <div class="analysis-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">Analysis Sessions</h3>
+                </div>
+                
+                <div class="sessions-list" id="sessionsList">
+                    <!-- Sessions will be populated here -->
+                    <div class="session-card" data-session-id="sample" onclick="alert('Dashboard loading...')">
+                        <div class="session-header">
+                            <h4>Sample Investigation</h4>
+                            <span class="priority-badge priority-medium">medium</span>
+                        </div>
+                        <div class="session-meta">
+                            <span><i class="fas fa-target"></i> person</span>
+                            <span><i class="fas fa-clock"></i> Today</span>
+                        </div>
+                        <div class="session-stats">
+                            <span>0 data points</span>
+                            <span>0 tools used</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Active Session -->
+            <div class="analysis-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title" id="activeSessionTitle">Select or Create a Session</h3>
+                </div>
+                
+                <div id="sessionContent">
+                    <div class="tabs">
+                        <button class="tab active" data-tab="overview">Overview</button>
+                        <button class="tab" data-tab="data">Data Points</button>
+                        <button class="tab" data-tab="analytics">Analytics</button>
+                        <button class="tab" data-tab="visualizations">Visualizations</button>
+                    </div>
+                    
+                    <!-- Overview Tab -->
+                    <div class="tab-content active" id="overview-tab">
+                        <div id="sessionOverview">
+                            <p>Select an existing session or create a new one to begin analysis.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Points Tab -->
+                    <div class="tab-content" id="data-tab">
+                        <div class="form-group">
+                            <button class="btn btn-primary" id="addDataPointBtn">
+                                <i class="fas fa-plus"></i> Add Data Point
+                            </button>
+                        </div>
+                        <div class="data-points-container" id="dataPointsContainer">
+                            <!-- Data points will be displayed here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Analytics Tab -->
+                    <div class="tab-content" id="analytics-tab">
+                        <div id="analyticsContent">
+                            <!-- Analytics content will be displayed here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Visualizations Tab -->
+                    <div class="tab-content" id="visualizations-tab">
+                        <div class="visualization-container">
+                            <h4>Timeline</h4>
+                            <div class="timeline-container" id="timelineContainer">
+                                <!-- Timeline will be displayed here -->
+                            </div>
+                        </div>
+                        
+                        <div class="visualization-container">
+                            <h4>Data Distribution</h4>
+                            <div class="chart-container">
+                                <canvas id="dataDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="visualization-container">
+                            <h4>Network Graph</h4>
+                            <div class="network-graph" id="networkGraph">
+                                <!-- Network visualization will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- New Session Modal -->
+    <div id="newSessionModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Create New Analysis Session</h3>
+            <form id="newSessionForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="sessionTitle">Session Title</label>
+                        <input type="text" id="sessionTitle" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="targetType">Target Type</label>
+                        <select id="targetType" class="form-select" required>
+                            <option value="">Select target type</option>
+                            <option value="person">Person</option>
+                            <option value="organization">Organization</option>
+                            <option value="domain">Domain</option>
+                            <option value="ip">IP Address</option>
+                            <option value="incident">Incident</option>
+                            <option value="investigation">Investigation</option>
+                            <option value="threat">Threat</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="priority">Priority</label>
+                        <select id="priority" class="form-select">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="sessionDescription">Description</label>
+                    <textarea id="sessionDescription" class="form-textarea" placeholder="Optional description of the analysis session"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Create Session</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Data Point Modal -->
+    <div id="addDataPointModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Add Data Point</h3>
+            <form id="addDataPointForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="dataType">Data Type</label>
+                        <select id="dataType" class="form-select" required>
+                            <option value="">Select data type</option>
+                            <option value="email">Email</option>
+                            <option value="domain">Domain</option>
+                            <option value="ip">IP Address</option>
+                            <option value="username">Username</option>
+                            <option value="phone">Phone Number</option>
+                            <option value="name">Name</option>
+                            <option value="company">Company</option>
+                            <option value="hash">Hash</option>
+                            <option value="url">URL</option>
+                            <option value="image">Image</option>
+                            <option value="coordinates">Coordinates</option>
+                            <option value="social-profile">Social Profile</option>
+                            <option value="cryptocurrency-address">Cryptocurrency Address</option>
+                            <option value="breach-data">Breach Data</option>
+                            <option value="network-data">Network Data</option>
+                            <option value="metadata">Metadata</option>
+                            <option value="geolocation">Geolocation</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="dataKey">Data Key</label>
+                        <input type="text" id="dataKey" class="form-input" required placeholder="e.g., Email Address, Domain Name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="dataValue">Data Value</label>
+                        <input type="text" id="dataValue" class="form-input" required placeholder="e.g., user@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sourceTool">Source Tool</label>
+                        <select id="sourceTool" class="form-select" required>
+                            <option value="">Select source tool</option>
+                            <!-- Tool options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="confidence">Confidence Level</label>
+                        <input type="range" id="confidence" class="form-input" min="0" max="100" value="50">
+                        <span id="confidenceValue">50%</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="tags">Tags (comma-separated)</label>
+                    <input type="text" id="tags" class="form-input" placeholder="e.g., verified, high-risk, public">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Add Data Point</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading" id="loadingIndicator">
+        <div class="spinner"></div>
+        <p>Processing analysis...</p>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/data-importer.js"></script>
+    <script src="js/analysis-dashboard.js"></script>
+</body>
+</html>

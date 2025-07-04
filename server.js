@@ -66,6 +66,11 @@ app.set('socketio', io);
 // Routes
 app.use('/api/tools', require('./routes/tools'));
 app.use('/api/osint', require('./routes/osint'));
+app.use('/api/analysis', require('./routes/analysis'));
+app.use('/api/analysis-sessions', require('./routes/analysis-sessions'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/reports', require('./routes/reports'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

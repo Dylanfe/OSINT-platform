@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Hub - Analysis Dashboard</title>
+    <link rel="icon" type="image/webp" href="favicon/osint-favicon.webp">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo" data-section="home">
+                <div class="logo-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <span>OSINT Hub</span>
+            </a>
+
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link" data-section="home">Home</a>
+                <a href="index.html#toolsSection" class="nav-link" data-section="tools">Tools</a>
+                <a href="index.html#searchSection" class="nav-link" data-section="search">Search</a>
+                <a href="index.html#dashboardSection" class="nav-link" data-section="dashboard">Dashboard</a>
+                <a href="analysis.html" class="nav-link active" data-section="analysis">Analysis</a>
+                <a href="index.html#aboutSection" class="nav-link" data-section="about">About</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Analysis Section -->
+        <section id="analysisSection" class="content-section active">
+            <h2 class="section-title">Data Analysis Dashboard</h2>
+            <p class="text-center" style="max-width: 48rem; margin: 0 auto 3rem; color: var(--text-secondary);">
+                Input your OSINT data to generate analysis and visualizations.
+            </p>
+
+            <div class="analysis-container">
+                <div class="data-entry-form">
+                    <h3>Enter Data for Analysis</h3>
+                    <form id="analysisForm">
+                        <div class="form-group">
+                            <label for="analysisTitle">Analysis Title</label>
+                            <input type="text" id="analysisTitle" name="analysisTitle" required>
+                        </div>
+                        <div id="data-entry-points">
+                            <!-- Dynamic data entry points will be added here -->
+                        </div>
+                        <button type="button" id="addEntryPoint">Add Data Point</button>
+                        <button type="submit">Analyze Data</button>
+                    </form>
+                </div>
+                <div class="analysis-results">
+                    <h3>Analysis Results</h3>
+                    <div id="analysisOutput">
+                        <!-- Analysis results will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addEntryPointBtn = document.getElementById('addEntryPoint');
+            const dataEntryPointsContainer = document.getElementById('data-entry-points');
+            let entryPointCount = 0;
+
+            addEntryPointBtn.addEventListener('click', () => {
+                entryPointCount++;
+                const newEntryPoint = document.createElement('div');
+                newEntryPoint.classList.add('form-group');
+                newEntryPoint.innerHTML = `
+                    <label for="dataPointKey${entryPointCount}">Data Key</label>
+                    <input type="text" id="dataPointKey${entryPointCount}" name="dataPointKey${entryPointCount}" placeholder="e.g., IP Address">
+                    <label for="dataPointValue${entryPointCount}">Data Value</label>
+                    <input type="text" id="dataPointValue${entryPointCount}" name="dataPointValue${entryPointCount}" placeholder="e.g., 192.168.1.1">
+                `;
+                dataEntryPointsContainer.appendChild(newEntryPoint);
+            });
+
+            const analysisForm = document.getElementById('analysisForm');
+            analysisForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('analysisTitle').value;
+                const data = {};
+                for (let i = 1; i <= entryPointCount; i++) {
+                    const key = document.getElementById(`dataPointKey${i}`).value;
+                    const value = document.getElementById(`dataPointValue${i}`).value;
+                    if (key && value) {
+                        data[key] = value;
+                    }
+                }
+
+                const response = await fetch('/api/analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Add authorization headers if needed
+                    },
+                    body: JSON.stringify({ title, data })
+                });
+
+                const result = await response.json();
+                displayAnalysis(result);
+            });
+
+            function displayAnalysis(analysis) {
+                const outputContainer = document.getElementById('analysisOutput');
+                let html = `<h4>${analysis.title}</h4>`;
+                html += '<ul>';
+                for (const key in analysis.data) {
+                    html += `<li><strong>${key}:</strong> ${analysis.data[key]}</li>`;
+                }
+                html += '</ul>';
+                outputContainer.innerHTML = html;
+            }
+        });
+    </script>
+</body>
+</html>
