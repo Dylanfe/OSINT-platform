@@ -505,8 +505,31 @@ class AnalysisDashboard {
 
     renderOverview() {
         const container = document.getElementById('sessionOverview');
-        if (!container || !this.currentSession) return;
+        console.log('renderOverview called');
+        console.log('Container found:', !!container);
+        console.log('Current session:', this.currentSession);
+        
+        if (!container || !this.currentSession) {
+            console.log('Early return - missing container or session');
+            return;
+        }
 
+        console.log('Session analytics:', this.currentSession.analytics);
+        
+        // Ensure analytics field exists with default values
+        if (!this.currentSession.analytics) {
+            this.currentSession.analytics = {
+                totalDataPoints: 0,
+                toolsUsed: 0,
+                confidenceScore: 0,
+                riskAssessment: {
+                    level: 'low',
+                    score: 0,
+                    factors: []
+                }
+            };
+        }
+        
         const riskLevel = this.currentSession.analytics?.riskAssessment?.level || 'low';
         const riskClass = `risk-${riskLevel}`;
         const riskIcon = this.getRiskIcon(riskLevel);
@@ -557,7 +580,7 @@ class AnalysisDashboard {
                             <span class="stat-label">Tools Used</span>
                         </div>
                         <div class="stat">
-                            <span class="stat-number">${this.currentSession.analytics?.confidenceScore || 0}%</span>
+                            <span class="stat-number">${this.currentSession.analytics?.confidenceScore || this.currentSession.analytics?.averageConfidence || 0}%</span>
                             <span class="stat-label">Avg Confidence</span>
                         </div>
                     </div>
@@ -1045,9 +1068,11 @@ class AnalysisDashboard {
                 const newSession = await response.json();
                 this.sessions.push(newSession);
                 console.log('Session created via API:', newSession);
-                
-                this.renderSessions();
-                this.selectSession(newSession._id);
+                        console.log('Session analytics field:', newSession.analytics);
+        console.log('Full session object:', JSON.stringify(newSession, null, 2));
+        
+        this.renderSessions();
+        this.selectSession(newSession._id);
                 this.updateStatistics();
                 
                 // Close modal and reset form

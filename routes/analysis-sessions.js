@@ -296,7 +296,17 @@ router.post('/', authMiddleware, async (req, res) => {
                 description,
                 targetType,
                 priority,
-                user: dummyUserId // Use dummy user ID in development mode
+                user: dummyUserId, // Use dummy user ID in development mode
+                analytics: {
+                    totalDataPoints: 0,
+                    toolsUsed: 0,
+                    confidenceScore: 0,
+                    riskAssessment: {
+                        level: 'low',
+                        score: 0,
+                        factors: []
+                    }
+                }
             });
 
             const session = await newSession.save();
@@ -308,7 +318,17 @@ router.post('/', authMiddleware, async (req, res) => {
             description,
             targetType,
             priority,
-            user: req.user.id
+            user: req.user.id,
+            analytics: {
+                totalDataPoints: 0,
+                toolsUsed: 0,
+                confidenceScore: 0,
+                riskAssessment: {
+                    level: 'low',
+                    score: 0,
+                    factors: []
+                }
+            }
         });
 
         const session = await newSession.save();
@@ -371,7 +391,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
         // In development mode, allow deletion without user check
         if (isDevelopment && !req.user) {
-            await AnalysisSession.findByIdAndRemove(req.params.id);
+            await AnalysisSession.findByIdAndDelete(req.params.id);
             return res.json({ msg: 'Analysis session removed' });
         }
 
@@ -380,7 +400,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
             return res.status(401).json({ msg: 'User not authorized' });
         }
 
-        await AnalysisSession.findByIdAndRemove(req.params.id);
+        await AnalysisSession.findByIdAndDelete(req.params.id);
 
         res.json({ msg: 'Analysis session removed' });
     } catch (err) {
