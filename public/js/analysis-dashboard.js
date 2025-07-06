@@ -456,8 +456,351 @@ class AnalysisDashboard {
         // Update session title
         document.getElementById('activeSessionTitle').textContent = this.currentSession.title;
 
+        // Ensure tab structure is present
+        this.ensureTabStructure();
+
+        // Show tabs when a session is selected
+        const tabsContainer = document.querySelector('.tabs');
+        if (tabsContainer) {
+            tabsContainer.style.display = 'flex';
+        }
+
         // Update content based on current tab
-        this.updateSessionContent();
+        // Add a small delay to ensure DOM is ready
+        setTimeout(() => {
+            // Recalculate analytics for the selected session
+            this.recalculateAnalytics();
+            this.updateSessionContent();
+        }, 100);
+    }
+
+    ensureTabStructure() {
+        console.log('ensureTabStructure called');
+        const sessionContent = document.getElementById('sessionContent');
+        console.log('sessionContent found:', !!sessionContent);
+        if (!sessionContent) return;
+
+        // Check if tab structure exists
+        const tabsContainer = sessionContent.querySelector('.tabs');
+        console.log('tabsContainer found:', !!tabsContainer);
+        if (!tabsContainer) {
+            console.log('Restoring tab structure...');
+            // Restore the tab structure
+            sessionContent.innerHTML = `
+                <div class="tabs">
+                    <button class="tab active" data-tab="overview">Overview</button>
+                    <button class="tab" data-tab="data">Data Points</button>
+                    <button class="tab" data-tab="analytics">Analytics</button>
+                    <button class="tab" data-tab="visualizations">Visualizations</button>
+                </div>
+                
+                <!-- Overview Tab -->
+                <div class="tab-content active" id="overview-tab">
+                    <div id="sessionOverview">
+                        <p>Loading session overview...</p>
+                    </div>
+                </div>
+                
+                <!-- Data Points Tab -->
+                <div class="tab-content" id="data-tab">
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="addDataPointBtn">
+                            <i class="fas fa-plus"></i> Add Data Point
+                        </button>
+                    </div>
+                    <div class="data-points-container" id="dataPointsContainer">
+                        <!-- Data points will be displayed here -->
+                    </div>
+                </div>
+                
+                <!-- Analytics Tab -->
+                <div class="tab-content" id="analytics-tab">
+                    <div id="analyticsContent">
+                        <!-- Analytics content will be displayed here -->
+                    </div>
+                </div>
+                
+                <!-- Visualizations Tab -->
+                <div class="tab-content" id="visualizations-tab">
+                    <div class="visualization-container">
+                        <h4>Timeline</h4>
+                        <div class="timeline-container" id="timelineContainer">
+                            <!-- Timeline will be displayed here -->
+                        </div>
+                    </div>
+                    
+                    <div class="visualization-container">
+                        <h4>Data Distribution</h4>
+                        <div class="chart-container">
+                            <canvas id="dataDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="visualization-container">
+                        <h4>Network Graph</h4>
+                        <div class="network-graph" id="networkGraph">
+                            <!-- Network visualization will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            `;
+            console.log('Tab structure restored');
+        }
+    }
+
+    recalculateAnalytics() {
+        if (!this.currentSession) return;
+        
+        console.log('Recalculating analytics for session:', this.currentSession._id);
+        
+        // Basic analytics
+        this.currentSession.analytics.totalDataPoints = this.currentSession.dataPoints.length;
+        
+        // Calculate unique tools used
+        const uniqueTools = new Set(this.currentSession.dataPoints.map(dp => dp.source.toolName));
+        this.currentSession.analytics.toolsUsed = uniqueTools.size;
+        
+        // Calculate average confidence score
+        if (this.currentSession.dataPoints.length > 0) {
+            const totalConfidence = this.currentSession.dataPoints.reduce((sum, dp) => sum + dp.confidence, 0);
+            this.currentSession.analytics.confidenceScore = Math.round(totalConfidence / this.currentSession.dataPoints.length);
+        }
+        
+        // Generate patterns
+        this.currentSession.analytics.patterns = this.generatePatterns();
+        
+        // Generate timeline
+        this.currentSession.analytics.timeline = this.generateTimeline();
+        
+        // Calculate risk assessment
+        this.currentSession.analytics.riskAssessment = this.calculateRiskAssessment();
+        
+        // Update metadata
+        this.currentSession.metadata.lastAnalyzed = new Date().toISOString();
+        this.currentSession.metadata.dataSourceCount = uniqueTools.size;
+        this.currentSession.metadata.qualityScore = this.calculateQualityScore();
+        this.currentSession.metadata.completenessScore = this.calculateCompletenessScore();
+        
+        console.log('Analytics recalculated:', this.currentSession.analytics);
+    }
+    
+    generatePatterns() {
+        const patterns = [];
+        const dataByType = {};
+        
+        // Group data by type
+        this.currentSession.dataPoints.forEach(dp => {
+            if (!dataByType[dp.type]) {
+                dataByType[dp.type] = [];
+            }
+            dataByType[dp.type].push(dp);
+        });
+        
+        // Look for patterns in each type
+        Object.keys(dataByType).forEach(type => {
+            const typeData = dataByType[type];
+            if (typeData.length > 1) {
+                // Check for duplicates or similar values
+                const values = typeData.map(dp => dp.value);
+                const duplicates = values.filter((item, index) => values.indexOf(item) !== index);
+                
+                if (duplicates.length > 0) {
+                    patterns.push({
+                        type: 'duplicate_values',
+                        description: `Duplicate ${type} values found`,
+                        strength: duplicates.length / values.length * 100,
+                        evidence: duplicates
+                    });
+                }
+            }
+            
+            // Check for data quality patterns
+            if (typeData.length > 0) {
+                const lowConfidenceData = typeData.filter(dp => dp.confidence < 50);
+                if (lowConfidenceData.length > 0) {
+                    patterns.push({
+                        type: 'low_confidence',
+                        description: `${lowConfidenceData.length} ${type} entries with low confidence`,
+                        strength: (lowConfidenceData.length / typeData.length) * 100,
+                        evidence: lowConfidenceData.map(dp => dp.value)
+                    });
+                }
+            }
+        });
+        
+        // Cross-type pattern analysis
+        if (this.currentSession.dataPoints.length > 1) {
+            // Check for correlation between different data types
+            const ipData = this.currentSession.dataPoints.filter(dp => dp.type === 'ip');
+            const domainData = this.currentSession.dataPoints.filter(dp => dp.type === 'domain');
+            
+            if (ipData.length > 0 && domainData.length > 0) {
+                patterns.push({
+                    type: 'cross_correlation',
+                    description: 'IP and domain data correlation potential',
+                    strength: 75,
+                    evidence: ['IP addresses and domains found in same session']
+                });
+            }
+            
+            // Check for email and domain correlation
+            const emailData = this.currentSession.dataPoints.filter(dp => dp.type === 'email');
+            if (emailData.length > 0 && domainData.length > 0) {
+                patterns.push({
+                    type: 'email_domain_correlation',
+                    description: 'Email and domain correlation potential',
+                    strength: 80,
+                    evidence: ['Email addresses and domains found in same session']
+                });
+            }
+        }
+        
+        return patterns;
+    }
+    
+    generateTimeline() {
+        const timeline = [];
+        
+        this.currentSession.dataPoints.forEach(dp => {
+            if (dp.source.timestamp) {
+                timeline.push({
+                    date: dp.source.timestamp,
+                    event: `${dp.key}: ${dp.value}`,
+                    source: dp.source.toolName,
+                    significance: dp.confidence > 75 ? 'high' : dp.confidence > 50 ? 'medium' : 'low'
+                });
+            }
+        });
+        
+        // Sort by date
+        timeline.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        return timeline;
+    }
+    
+    calculateRiskAssessment() {
+        let riskScore = 0;
+        const factors = [];
+        
+        // Check for high-risk indicators
+        this.currentSession.dataPoints.forEach(dp => {
+            if (dp.enrichment && dp.enrichment.riskScore) {
+                riskScore += dp.enrichment.riskScore;
+            }
+            
+            // Check for specific risk factors
+            if (dp.type === 'breach-data') {
+                riskScore += 20;
+                factors.push('Data breach involvement');
+            }
+            
+            if (dp.key.toLowerCase().includes('password') || dp.key.toLowerCase().includes('hash')) {
+                riskScore += 15;
+                factors.push('Password-related data');
+            }
+            
+            if (dp.type === 'cryptocurrency-address') {
+                riskScore += 10;
+                factors.push('Cryptocurrency involvement');
+            }
+            
+            // Check for low confidence data
+            if (dp.confidence < 50) {
+                riskScore += 5;
+                factors.push('Low confidence data');
+            }
+            
+            // Check for suspicious patterns in values
+            if (dp.value && typeof dp.value === 'string') {
+                if (dp.value.includes('@') && dp.value.includes('gmail')) {
+                    riskScore += 3;
+                    factors.push('Common email pattern detected');
+                }
+                
+                if (dp.value.match(/^\d+$/) && dp.value.length > 10) {
+                    riskScore += 5;
+                    factors.push('Long numeric identifier');
+                }
+            }
+        });
+        
+        // Add risk based on data diversity
+        const uniqueTypes = new Set(this.currentSession.dataPoints.map(dp => dp.type));
+        if (uniqueTypes.size > 3) {
+            riskScore += 8;
+            factors.push('Multiple data types collected');
+        }
+        
+        // Determine risk level
+        let level = 'low';
+        if (riskScore > 75) level = 'critical';
+        else if (riskScore > 50) level = 'high';
+        else if (riskScore > 25) level = 'medium';
+        
+        return {
+            level,
+            factors,
+            score: Math.min(riskScore, 100)
+        };
+    }
+    
+    calculateQualityScore() {
+        if (this.currentSession.dataPoints.length === 0) return 0;
+        
+        const totalConfidence = this.currentSession.dataPoints.reduce((sum, dp) => sum + dp.confidence, 0);
+        const avgConfidence = totalConfidence / this.currentSession.dataPoints.length;
+        
+        // Quality score based on confidence and data completeness
+        let qualityScore = avgConfidence;
+        
+        // Bonus for verified data
+        const verifiedData = this.currentSession.dataPoints.filter(dp => dp.enrichment && dp.enrichment.verified);
+        if (verifiedData.length > 0) {
+            qualityScore += (verifiedData.length / this.currentSession.dataPoints.length) * 20;
+        }
+        
+        return Math.min(qualityScore, 100);
+    }
+    
+    calculateCompletenessScore() {
+        if (this.currentSession.dataPoints.length === 0) return 0;
+        
+        // Completeness based on data diversity and coverage
+        const uniqueTypes = new Set(this.currentSession.dataPoints.map(dp => dp.type));
+        const typeScore = (uniqueTypes.size / 10) * 40; // Max 40 points for type diversity
+        
+        const coverageScore = Math.min(this.currentSession.dataPoints.length * 10, 60); // Max 60 points for data volume
+        
+        return Math.min(typeScore + coverageScore, 100);
+    }
+
+    showNoSessionMessage() {
+        const sessionContent = document.getElementById('sessionContent');
+        if (!sessionContent) return;
+
+        // Ensure tab structure exists first
+        this.ensureTabStructure();
+        
+        // Show message in the overview tab
+        const overviewContainer = document.getElementById('sessionOverview');
+        if (overviewContainer) {
+            overviewContainer.innerHTML = '<p>Select an existing session or create a new one to begin analysis.</p>';
+        }
+        
+        // Hide tabs when no session is selected
+        const tabsContainer = sessionContent.querySelector('.tabs');
+        if (tabsContainer) {
+            tabsContainer.style.display = 'none';
+        }
+        
+        // Show only the overview tab content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        const overviewTab = document.getElementById('overview-tab');
+        if (overviewTab) {
+            overviewTab.classList.add('active');
+        }
     }
 
     updateSessionContent() {
@@ -504,17 +847,40 @@ class AnalysisDashboard {
     }
 
     renderOverview() {
-        const container = document.getElementById('sessionOverview');
         console.log('renderOverview called');
+        let container = document.getElementById('sessionOverview');
         console.log('Container found:', !!container);
+        console.log('Container element:', container);
         console.log('Current session:', this.currentSession);
         
         if (!container || !this.currentSession) {
             console.log('Early return - missing container or session');
-            return;
+            console.log('Container missing:', !container);
+            console.log('Session missing:', !this.currentSession);
+            
+            // Try to ensure tab structure exists
+            if (!container) {
+                console.log('Attempting to restore tab structure...');
+                this.ensureTabStructure();
+                container = document.getElementById('sessionOverview');
+                console.log('Container after restore:', !!container);
+                
+                if (!container) {
+                    console.log('Still no container found, cannot render overview');
+                    return;
+                }
+            }
+            
+            if (!this.currentSession) {
+                console.log('No session available, cannot render overview');
+                return;
+            }
         }
 
         console.log('Session analytics:', this.currentSession.analytics);
+        
+        // Ensure analytics are up to date
+        this.recalculateAnalytics();
         
         // Ensure analytics field exists with default values
         if (!this.currentSession.analytics) {
@@ -642,6 +1008,9 @@ class AnalysisDashboard {
         const container = document.getElementById('dataPointsContainer');
         if (!container || !this.currentSession) return;
 
+        // Ensure analytics are up to date
+        this.recalculateAnalytics();
+
         const dataPoints = this.currentSession.dataPoints || [];
 
         if (dataPoints.length === 0) {
@@ -714,7 +1083,10 @@ class AnalysisDashboard {
 
         console.log('Rendering analytics for session:', this.currentSession);
         console.log('Analytics data:', this.currentSession.analytics);
-
+        
+        // Ensure analytics are up to date
+        this.recalculateAnalytics();
+        
         const analytics = this.currentSession.analytics || {};
         const patterns = analytics.patterns || [];
         const timeline = analytics.timeline || [];
@@ -838,6 +1210,9 @@ class AnalysisDashboard {
     renderVisualizations() {
         if (!this.currentSession) return;
 
+        // Ensure analytics are up to date
+        this.recalculateAnalytics();
+
         this.renderTimeline();
         this.renderDataDistributionChart();
         this.renderNetworkGraph();
@@ -848,6 +1223,10 @@ class AnalysisDashboard {
         if (!container || !this.currentSession) return;
 
         console.log('Rendering timeline for session:', this.currentSession);
+        
+        // Ensure analytics are up to date
+        this.recalculateAnalytics();
+        
         const timeline = this.currentSession.analytics?.timeline || [];
         console.log('Timeline data:', timeline);
 
@@ -872,6 +1251,10 @@ class AnalysisDashboard {
         if (!canvas || !this.currentSession) return;
 
         console.log('Rendering data distribution chart for session:', this.currentSession);
+        
+        // Ensure analytics are up to date
+        this.recalculateAnalytics();
+        
         const ctx = canvas.getContext('2d');
         const dataPoints = this.currentSession.dataPoints || [];
         console.log('Data points:', dataPoints);
@@ -884,7 +1267,7 @@ class AnalysisDashboard {
         console.log('Type counts:', typeCounts);
 
         if (Object.keys(typeCounts).length === 0) {
-            container.innerHTML = '<p>No data points available for chart visualization.</p>';
+            canvas.parentElement.innerHTML = '<p>No data points available for chart visualization.</p>';
             return;
         }
 
@@ -918,7 +1301,7 @@ class AnalysisDashboard {
             console.log('Chart created successfully');
         } catch (error) {
             console.error('Error creating chart:', error);
-            container.innerHTML = '<p>Chart could not be rendered. Chart.js may not be available.</p>';
+            canvas.parentElement.innerHTML = '<p>Chart could not be rendered. Chart.js may not be available.</p>';
         }
     }
 
@@ -1058,23 +1441,48 @@ class AnalysisDashboard {
         console.log('Validation passed, creating session...');
 
         try {
-            const response = await fetch('/api/analysis-sessions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(sessionData)
-            });
+            // Try API call with retry mechanism
+            let response;
+            let retryCount = 0;
+            const maxRetries = 2;
+            
+            while (retryCount <= maxRetries) {
+                try {
+                    response = await fetch('/api/analysis-sessions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(sessionData)
+                    });
+                    
+                    if (response.ok) {
+                        break; // Success, exit retry loop
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (fetchError) {
+                    retryCount++;
+                    console.log(`API attempt ${retryCount} failed:`, fetchError);
+                    
+                    if (retryCount > maxRetries) {
+                        throw fetchError; // Give up after max retries
+                    }
+                    
+                    // Wait before retrying
+                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                }
+            }
 
-            if (response.ok) {
+            if (response && response.ok) {
                 const newSession = await response.json();
                 this.sessions.push(newSession);
                 console.log('Session created via API:', newSession);
-                        console.log('Session analytics field:', newSession.analytics);
-        console.log('Full session object:', JSON.stringify(newSession, null, 2));
-        
-        this.renderSessions();
-        this.selectSession(newSession._id);
+                console.log('Session analytics field:', newSession.analytics);
+                console.log('Full session object:', JSON.stringify(newSession, null, 2));
+                
+                this.renderSessions();
+                this.selectSession(newSession._id);
                 this.updateStatistics();
                 
                 // Close modal and reset form
@@ -1101,11 +1509,36 @@ class AnalysisDashboard {
                 analytics: {
                     totalDataPoints: 0,
                     toolsUsed: 0,
-                    confidenceScore: 0
+                    confidenceScore: 0,
+                    riskAssessment: {
+                        level: 'low',
+                        score: 0,
+                        factors: []
+                    },
+                    patterns: [],
+                    correlations: [],
+                    timeline: [],
+                    geolocations: [],
+                    networks: []
+                },
+                visualizations: [],
+                reports: [],
+                collaboration: {
+                    shared: false,
+                    sharedWith: [],
+                    comments: []
+                },
+                settings: {
+                    autoAnalysis: true,
+                    notifications: true,
+                    dataRetention: 365,
+                    exportFormat: 'json'
                 },
                 metadata: {
-                    completenessScore: 0,
-                    qualityScore: 0
+                    lastAnalyzed: null,
+                    dataSourceCount: 0,
+                    qualityScore: 0,
+                    completenessScore: 0
                 },
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
@@ -1153,7 +1586,7 @@ class AnalysisDashboard {
                 if (this.currentSession && this.currentSession._id === sessionId) {
                     this.currentSession = null;
                     document.getElementById('activeSessionTitle').textContent = 'Select or Create a Session';
-                    document.getElementById('sessionContent').innerHTML = '<p>Select an existing session or create a new one to begin analysis.</p>';
+                    this.showNoSessionMessage();
                 }
                 
                 // Hide demo note
@@ -1184,7 +1617,7 @@ class AnalysisDashboard {
                 if (this.currentSession && this.currentSession._id === sessionId) {
                     this.currentSession = null;
                     document.getElementById('activeSessionTitle').textContent = 'Select or Create a Session';
-                    document.getElementById('sessionContent').innerHTML = '<p>Select an existing session or create a new one to begin analysis.</p>';
+                    this.showNoSessionMessage();
                 }
                 
                 this.renderSessions();
@@ -1245,7 +1678,7 @@ class AnalysisDashboard {
             if (this.currentSession && testSessions.some(s => s._id === this.currentSession._id)) {
                 this.currentSession = null;
                 document.getElementById('activeSessionTitle').textContent = 'Select or Create a Session';
-                document.getElementById('sessionContent').innerHTML = '<p>Select an existing session or create a new one to begin analysis.</p>';
+                this.showNoSessionMessage();
             }
             
             // Hide demo note if demo session was included in cleanup
@@ -1322,7 +1755,7 @@ class AnalysisDashboard {
                 }
                 
                 // Force refresh the analytics display
-                this.renderCurrentView();
+                this.updateSessionContent();
                 alert('Data point added successfully!');
             } else {
                 throw new Error(`HTTP ${response.status}`);
@@ -1331,15 +1764,9 @@ class AnalysisDashboard {
             console.error('Error adding data point:', error);
             // Mock data point addition for development (since backend is not available)
             this.currentSession.dataPoints.push(dataPoint);
-            this.currentSession.analytics.totalDataPoints = this.currentSession.dataPoints.length;
             
-            // Update tools used count
-            const uniqueTools = new Set(this.currentSession.dataPoints.map(dp => dp.source.tool));
-            this.currentSession.analytics.toolsUsed = uniqueTools.size;
-            
-            // Update confidence score
-            const totalConfidence = this.currentSession.dataPoints.reduce((sum, dp) => sum + dp.confidence, 0);
-            this.currentSession.analytics.confidenceScore = Math.round(totalConfidence / this.currentSession.dataPoints.length);
+            // Recalculate analytics
+            this.recalculateAnalytics();
             
             // Update the session in the sessions array
             const sessionIndex = this.sessions.findIndex(s => s._id === this.currentSession._id);
@@ -1350,8 +1777,13 @@ class AnalysisDashboard {
             alert('Data point added successfully!');
         }
 
+        // Force refresh all views to show updated analytics
         this.updateSessionContent();
         this.updateStatistics();
+        
+        // Force refresh the current tab to show updated data
+        const activeTab = document.querySelector('.tab.active')?.dataset.tab || 'overview';
+        this.switchTab(activeTab);
         document.getElementById('addDataPointModal').style.display = 'none';
         document.getElementById('addDataPointForm').reset();
         document.getElementById('confidenceValue').textContent = '50%';
