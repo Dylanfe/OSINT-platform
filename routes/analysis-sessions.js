@@ -444,12 +444,22 @@ router.post('/:id/data-points', authMiddleware, async (req, res) => {
             await session.addDataPoint(dataPoint);
 
             // Trigger analysis updates
+            console.log('Adding data point:', dataPoint);
             await session.analyzePatterns();
+            console.log('Patterns found:', session.analytics.patterns);
             await session.generateTimeline();
+            console.log('Timeline generated:', session.analytics.timeline);
             await session.calculateRisk();
+            console.log('Risk assessment:', session.analytics.riskAssessment);
 
             const updatedSession = await AnalysisSession.findById(req.params.id)
                 .populate('dataPoints.source.tool', 'name category reliability');
+
+            console.log('Returning updated session with analytics:', {
+                id: updatedSession._id,
+                analytics: updatedSession.analytics,
+                riskFactors: updatedSession.analytics?.riskAssessment?.factors
+            });
 
             return res.json(updatedSession);
         }
@@ -506,6 +516,12 @@ router.post('/:id/data-points', authMiddleware, async (req, res) => {
         const updatedSession = await AnalysisSession.findById(req.params.id)
             .populate('dataPoints.source.tool', 'name category reliability');
 
+        console.log('Returning updated session with analytics:', {
+            id: updatedSession._id,
+            analytics: updatedSession.analytics,
+            riskFactors: updatedSession.analytics?.riskAssessment?.factors
+        });
+
         res.json(updatedSession);
     } catch (err) {
         console.error(err.message);
@@ -556,6 +572,12 @@ router.put('/:id/data-points/:dataPointId', authMiddleware, async (req, res) => 
         const updatedSession = await AnalysisSession.findById(req.params.id)
             .populate('dataPoints.source.tool', 'name category reliability');
 
+        console.log('Returning updated session with analytics:', {
+            id: updatedSession._id,
+            analytics: updatedSession.analytics,
+            riskFactors: updatedSession.analytics?.riskAssessment?.factors
+        });
+
         res.json(updatedSession);
     } catch (err) {
         console.error(err.message);
@@ -597,6 +619,12 @@ router.delete('/:id/data-points/:dataPointId', protect, async (req, res) => {
 
         const updatedSession = await AnalysisSession.findById(req.params.id)
             .populate('dataPoints.source.tool', 'name category reliability');
+
+        console.log('Returning updated session with analytics:', {
+            id: updatedSession._id,
+            analytics: updatedSession.analytics,
+            riskFactors: updatedSession.analytics?.riskAssessment?.factors
+        });
 
         res.json(updatedSession);
     } catch (err) {

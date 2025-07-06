@@ -720,8 +720,10 @@ class AnalysisDashboard {
         const timeline = analytics.timeline || [];
         const riskFactors = analytics.riskAssessment?.factors || [];
 
+        console.log('Full analytics object:', analytics);
         console.log('Patterns:', patterns);
         console.log('Risk factors:', riskFactors);
+        console.log('Risk assessment:', analytics.riskAssessment);
 
         container.innerHTML = `
             <div class="analytics-grid">
@@ -1286,11 +1288,16 @@ class AnalysisDashboard {
             value: dataValue,
             confidence: parseInt(formData.get('confidence')),
             tags: formData.get('tags').split(',').map(t => t.trim()).filter(t => t),
+            enrichment: {
+                riskScore: 0, // Default risk score
+                verificationSource: 'manual',
+                additionalContext: ''
+            },
             source: {
                 tool: toolId,
                 toolName: tool?.name || 'Unknown',
                 category: tool?.category || 'unknown',
-                reliability: tool?.reliability || 'medium',
+                reliability: tool?.reliability || 0.8,
                 timestamp: new Date()
             }
         };
@@ -1306,11 +1313,16 @@ class AnalysisDashboard {
 
             if (response.ok) {
                 const updatedSession = await response.json();
+                console.log('Updated session from backend:', updatedSession);
+                
                 const sessionIndex = this.sessions.findIndex(s => s._id === this.currentSession._id);
                 if (sessionIndex !== -1) {
                     this.sessions[sessionIndex] = updatedSession;
                     this.currentSession = updatedSession;
                 }
+                
+                // Force refresh the analytics display
+                this.renderCurrentView();
                 alert('Data point added successfully!');
             } else {
                 throw new Error(`HTTP ${response.status}`);

@@ -114,7 +114,7 @@ const AnalysisSessionSchema = new mongoose.Schema({
             score: Number
         },
         patterns: [{
-            type: String,
+            type: { type: String },
             description: String,
             strength: Number,
             evidence: [String]
@@ -321,7 +321,36 @@ AnalysisSessionSchema.methods.analyzePatterns = function() {
                 });
             }
         }
+        
+        // Check for data quality patterns
+        if (typeData.length > 0) {
+            const lowConfidenceData = typeData.filter(dp => dp.confidence < 50);
+            if (lowConfidenceData.length > 0) {
+                patterns.push({
+                    type: 'low_confidence',
+                    description: `${lowConfidenceData.length} ${type} entries with low confidence`,
+                    strength: (lowConfidenceData.length / typeData.length) * 100,
+                    evidence: lowConfidenceData.map(dp => dp.value)
+                });
+            }
+        }
     });
+    
+    // Cross-type pattern analysis
+    if (this.dataPoints.length > 1) {
+        // Check for correlation between different data types
+        const ipData = this.dataPoints.filter(dp => dp.type === 'ip');
+        const domainData = this.dataPoints.filter(dp => dp.type === 'domain');
+        
+        if (ipData.length > 0 && domainData.length > 0) {
+            patterns.push({
+                type: 'cross_correlation',
+                description: 'IP and domain data correlation potential',
+                strength: 75,
+                evidence: ['IP addresses and domains found in same session']
+            });
+        }
+    }
     
     this.analytics.patterns = patterns;
     return this.save();
@@ -375,7 +404,33 @@ AnalysisSessionSchema.methods.calculateRisk = function() {
             riskScore += 10;
             factors.push('Cryptocurrency involvement');
         }
+        
+        // Check for low confidence data
+        if (dp.confidence < 50) {
+            riskScore += 5;
+            factors.push('Low confidence data');
+        }
+        
+        // Check for suspicious patterns in values
+        if (dp.value && typeof dp.value === 'string') {
+            if (dp.value.includes('@') && dp.value.includes('gmail')) {
+                riskScore += 3;
+                factors.push('Common email pattern detected');
+            }
+            
+            if (dp.value.match(/^\d+$/) && dp.value.length > 10) {
+                riskScore += 5;
+                factors.push('Long numeric identifier');
+            }
+        }
     });
+    
+    // Add risk based on data diversity
+    const uniqueTypes = new Set(this.dataPoints.map(dp => dp.type));
+    if (uniqueTypes.size > 3) {
+        riskScore += 8;
+        factors.push('Multiple data types collected');
+    }
     
     // Determine risk level
     let level = 'low';
