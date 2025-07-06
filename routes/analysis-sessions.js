@@ -1,15 +1,137 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
+const mongoose = require('mongoose');
+const { protect, optionalAuth } = require('../middleware/auth');
 const AnalysisSession = require('../models/AnalysisSession');
 const Tool = require('../models/Tool');
 
+// Development mode - use optional auth for demo purposes
+const isDevelopment = process.env.NODE_ENV !== 'production';
+const authMiddleware = isDevelopment ? optionalAuth : protect;
+
 // @desc    Get all analysis sessions for user
 // @route   GET /api/analysis-sessions
-// @access  Private
-router.get('/', protect, async (req, res) => {
+// @access  Private (or public in development)
+router.get('/', authMiddleware, async (req, res) => {
     try {
-        const sessions = await AnalysisSession.find({ user: req.user.id })
+        let query = {};
+        
+        // In development mode, if no user is authenticated, return demo session + real sessions
+        if (isDevelopment && !req.user) {
+            const demoSession = {
+                _id: 'demo-session-1',
+                title: 'Demo Analysis Session',
+                description: 'This is a demo session for testing purposes',
+                targetType: 'person',
+                priority: 'medium',
+                status: 'active',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                dataPoints: [
+                    {
+                        _id: 'dp-1',
+                        type: 'email',
+                        key: 'Email Address',
+                        value: 'john.doe@example.com',
+                        confidence: 85,
+                        tags: ['verified', 'primary'],
+                        source: {
+                            toolName: 'Email Finder',
+                            category: 'reconnaissance',
+                            reliability: 0.9,
+                            timestamp: new Date().toISOString()
+                        }
+                    },
+                    {
+                        _id: 'dp-2',
+                        type: 'domain',
+                        key: 'Domain',
+                        value: 'example.com',
+                        confidence: 95,
+                        tags: ['registered', 'active'],
+                        source: {
+                            toolName: 'Domain Lookup',
+                            category: 'reconnaissance',
+                            reliability: 0.95,
+                            timestamp: new Date().toISOString()
+                        }
+                    },
+                    {
+                        _id: 'dp-3',
+                        type: 'social-profile',
+                        key: 'LinkedIn Profile',
+                        value: 'linkedin.com/in/johndoe',
+                        confidence: 70,
+                        tags: ['professional', 'public'],
+                        source: {
+                            toolName: 'Social Media Scanner',
+                            category: 'social',
+                            reliability: 0.8,
+                            timestamp: new Date().toISOString()
+                        }
+                    }
+                ],
+                analytics: {
+                    totalDataPoints: 3,
+                    toolsUsed: 3,
+                    averageConfidence: 83,
+                    patterns: [
+                        {
+                            description: 'Email domain matches company domain',
+                            strength: 85,
+                            type: 'correlation'
+                        },
+                        {
+                            description: 'Professional social media presence',
+                            strength: 70,
+                            type: 'social'
+                        }
+                    ],
+                    timeline: [
+                        {
+                            date: new Date().toISOString(),
+                            event: 'Email address discovered',
+                            source: 'Email Finder'
+                        },
+                        {
+                            date: new Date().toISOString(),
+                            event: 'Domain registration verified',
+                            source: 'Domain Lookup'
+                        },
+                        {
+                            date: new Date().toISOString(),
+                            event: 'LinkedIn profile found',
+                            source: 'Social Media Scanner'
+                        }
+                    ],
+                    riskAssessment: {
+                        level: 'low',
+                        score: 15,
+                        factors: [
+                            'Public social media presence',
+                            'Professional email domain',
+                            'No suspicious activity detected'
+                        ]
+                    }
+                },
+                metadata: {
+                    completenessScore: 75,
+                    qualityScore: 85
+                }
+            };
+
+            // Get real sessions from database
+            const realSessions = await AnalysisSession.find({})
+                .populate('dataPoints.source.tool', 'name category')
+                .sort({ updatedAt: -1 });
+
+            // Combine demo session with real sessions
+            return res.json([demoSession, ...realSessions]);
+        }
+
+        // Normal authenticated flow
+        query.user = req.user.id;
+        const sessions = await AnalysisSession.find(query)
             .populate('dataPoints.source.tool', 'name category')
             .sort({ updatedAt: -1 });
         
@@ -22,9 +144,117 @@ router.get('/', protect, async (req, res) => {
 
 // @desc    Get single analysis session
 // @route   GET /api/analysis-sessions/:id
-// @access  Private
-router.get('/:id', protect, async (req, res) => {
+// @access  Private (or public in development)
+router.get('/:id', authMiddleware, async (req, res) => {
     try {
+        // In development mode, if no user is authenticated, return mock data
+        if (isDevelopment && !req.user) {
+            if (req.params.id === 'demo-session-1') {
+                return res.json({
+                    _id: 'demo-session-1',
+                    title: 'Demo Analysis Session',
+                    description: 'This is a demo session for testing purposes',
+                    targetType: 'person',
+                    priority: 'medium',
+                    status: 'active',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    dataPoints: [
+                        {
+                            _id: 'dp-1',
+                            type: 'email',
+                            key: 'Email Address',
+                            value: 'john.doe@example.com',
+                            confidence: 85,
+                            tags: ['verified', 'primary'],
+                            source: {
+                                toolName: 'Email Finder',
+                                category: 'reconnaissance',
+                                reliability: 0.9,
+                                timestamp: new Date().toISOString()
+                            }
+                        },
+                        {
+                            _id: 'dp-2',
+                            type: 'domain',
+                            key: 'Domain',
+                            value: 'example.com',
+                            confidence: 95,
+                            tags: ['registered', 'active'],
+                            source: {
+                                toolName: 'Domain Lookup',
+                                category: 'reconnaissance',
+                                reliability: 0.95,
+                                timestamp: new Date().toISOString()
+                            }
+                        },
+                        {
+                            _id: 'dp-3',
+                            type: 'social-profile',
+                            key: 'LinkedIn Profile',
+                            value: 'linkedin.com/in/johndoe',
+                            confidence: 70,
+                            tags: ['professional', 'public'],
+                            source: {
+                                toolName: 'Social Media Scanner',
+                                category: 'social',
+                                reliability: 0.8,
+                                timestamp: new Date().toISOString()
+                            }
+                        }
+                    ],
+                    analytics: {
+                        totalDataPoints: 3,
+                        toolsUsed: 3,
+                        averageConfidence: 83,
+                        patterns: [
+                            {
+                                description: 'Email domain matches company domain',
+                                strength: 85,
+                                type: 'correlation'
+                            },
+                            {
+                                description: 'Professional social media presence',
+                                strength: 70,
+                                type: 'social'
+                            }
+                        ],
+                        timeline: [
+                            {
+                                date: new Date().toISOString(),
+                                event: 'Email address discovered',
+                                source: 'Email Finder'
+                            },
+                            {
+                                date: new Date().toISOString(),
+                                event: 'Domain registration verified',
+                                source: 'Domain Lookup'
+                            },
+                            {
+                                date: new Date().toISOString(),
+                                event: 'LinkedIn profile found',
+                                source: 'Social Media Scanner'
+                            }
+                        ],
+                        riskAssessment: {
+                            level: 'low',
+                            score: 15,
+                            factors: [
+                                'Public social media presence',
+                                'Professional email domain',
+                                'No suspicious activity detected'
+                            ]
+                        }
+                    },
+                    metadata: {
+                        completenessScore: 75,
+                        qualityScore: 85
+                    }
+                });
+            }
+            return res.status(404).json({ msg: 'Analysis session not found' });
+        }
+
         const session = await AnalysisSession.findById(req.params.id)
             .populate('dataPoints.source.tool', 'name category reliability')
             .populate('user', 'name email');
@@ -51,10 +281,27 @@ router.get('/:id', protect, async (req, res) => {
 
 // @desc    Create new analysis session
 // @route   POST /api/analysis-sessions
-// @access  Private
-router.post('/', protect, async (req, res) => {
+// @access  Private (or public in development)
+router.post('/', authMiddleware, async (req, res) => {
     try {
         const { title, description, targetType, priority } = req.body;
+
+        // In development mode, if no user is authenticated, create a real session
+        if (isDevelopment && !req.user) {
+            // Create a dummy user ID for development mode
+            const dummyUserId = new mongoose.Types.ObjectId();
+            
+            const newSession = new AnalysisSession({
+                title,
+                description,
+                targetType,
+                priority,
+                user: dummyUserId // Use dummy user ID in development mode
+            });
+
+            const session = await newSession.save();
+            return res.json(session);
+        }
 
         const newSession = new AnalysisSession({
             title,
@@ -74,8 +321,8 @@ router.post('/', protect, async (req, res) => {
 
 // @desc    Update analysis session
 // @route   PUT /api/analysis-sessions/:id
-// @access  Private
-router.put('/:id', protect, async (req, res) => {
+// @access  Private (or public in development)
+router.put('/:id', authMiddleware, async (req, res) => {
     try {
         const { title, description, targetType, priority, status } = req.body;
 
@@ -113,13 +360,19 @@ router.put('/:id', protect, async (req, res) => {
 
 // @desc    Delete analysis session
 // @route   DELETE /api/analysis-sessions/:id
-// @access  Private
-router.delete('/:id', protect, async (req, res) => {
+// @access  Private (or public in development)
+router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const session = await AnalysisSession.findById(req.params.id);
 
         if (!session) {
             return res.status(404).json({ msg: 'Analysis session not found' });
+        }
+
+        // In development mode, allow deletion without user check
+        if (isDevelopment && !req.user) {
+            await AnalysisSession.findByIdAndRemove(req.params.id);
+            return res.json({ msg: 'Analysis session removed' });
         }
 
         // Check if user owns this session
@@ -138,9 +391,49 @@ router.delete('/:id', protect, async (req, res) => {
 
 // @desc    Add data point to analysis session
 // @route   POST /api/analysis-sessions/:id/data-points
-// @access  Private
-router.post('/:id/data-points', protect, async (req, res) => {
+// @access  Private (or public in development)
+router.post('/:id/data-points', authMiddleware, async (req, res) => {
     try {
+        // In development mode, if no user is authenticated, handle real session
+        if (isDevelopment && !req.user) {
+            const session = await AnalysisSession.findById(req.params.id);
+            
+            if (!session) {
+                return res.status(404).json({ msg: 'Analysis session not found' });
+            }
+
+            const { type, key, value, confidence, tags, source, relationships, enrichment } = req.body;
+
+            const dataPoint = {
+                type,
+                key,
+                value,
+                confidence: confidence || 50,
+                tags: tags || [],
+                relationships: relationships || [],
+                enrichment: enrichment || {},
+                source: {
+                    tool: source?.tool,
+                    toolName: source?.toolName || 'Unknown Tool',
+                    category: source?.category || 'general',
+                    reliability: source?.reliability || 0.8,
+                    timestamp: new Date()
+                }
+            };
+
+            await session.addDataPoint(dataPoint);
+
+            // Trigger analysis updates
+            await session.analyzePatterns();
+            await session.generateTimeline();
+            await session.calculateRisk();
+
+            const updatedSession = await AnalysisSession.findById(req.params.id)
+                .populate('dataPoints.source.tool', 'name category reliability');
+
+            return res.json(updatedSession);
+        }
+
         const session = await AnalysisSession.findById(req.params.id);
 
         if (!session) {
@@ -202,8 +495,8 @@ router.post('/:id/data-points', protect, async (req, res) => {
 
 // @desc    Update data point in analysis session
 // @route   PUT /api/analysis-sessions/:id/data-points/:dataPointId
-// @access  Private
-router.put('/:id/data-points/:dataPointId', protect, async (req, res) => {
+// @access  Private (or public in development)
+router.put('/:id/data-points/:dataPointId', authMiddleware, async (req, res) => {
     try {
         const session = await AnalysisSession.findById(req.params.id);
 

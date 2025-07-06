@@ -148,6 +148,10 @@ class AnalysisDashboard {
             this.exportReport();
         });
 
+        document.getElementById('cleanupBtn')?.addEventListener('click', () => {
+            this.cleanupTestSessions();
+        });
+
         // Close modals when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
@@ -209,6 +213,7 @@ class AnalysisDashboard {
             const response = await fetch('/api/analysis-sessions');
             if (response.ok) {
                 const data = await response.json();
+                console.log('API response data:', data);
                 // Handle different response formats
                 if (data.success && Array.isArray(data.data)) {
                     this.sessions = data.data;
@@ -217,6 +222,7 @@ class AnalysisDashboard {
                 } else {
                     throw new Error('Invalid response format');
                 }
+                console.log('Sessions loaded:', this.sessions);
             } else {
                 console.warn(`API returned ${response.status}, using mock data`);
                 throw new Error(`HTTP ${response.status}`);
@@ -227,22 +233,67 @@ class AnalysisDashboard {
             this.sessions = [];
         }
         this.renderSessions();
+        
+        // Auto-select the demo session only if it's the only session available
+        const demoSession = this.sessions.find(s => s._id === 'demo-session-1');
+        const nonDemoSessions = this.sessions.filter(s => 
+            s._id !== 'demo-session-1' && 
+            !s.title.includes('Test') && 
+            !s.title.includes('test') &&
+            !s.title.includes('Demo')
+        );
+        
+        if (demoSession && nonDemoSessions.length === 0) {
+            console.log('Auto-selecting demo session (only session available)');
+            this.selectSession('demo-session-1');
+        } else if (nonDemoSessions.length > 0) {
+            console.log('Auto-selecting first non-demo session');
+            this.selectSession(nonDemoSessions[0]._id);
+        }
     }
 
     renderSessions() {
         const container = document.getElementById('sessionsList');
         if (!container) return;
 
-        if (this.sessions.length === 0) {
+        // Filter out test sessions (sessions with "Test" in title or non-demo sessions in development)
+        const displaySessions = this.sessions.filter(session => {
+            // Always show demo session
+            if (session._id === 'demo-session-1') return true;
+            
+            // In development, only show real sessions if they don't have "Test" or "Demo" in the title
+            const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (isDevelopment) {
+                // Only show real sessions if they don't have "Test" or "Demo" in the title
+                return !session.title.includes('Test') && !session.title.includes('test') && !session.title.includes('Demo');
+            }
+            
+            // In production, show all sessions except test ones
+            return !session.title.includes('Test') && !session.title.includes('test') && !session.title.includes('Demo');
+        });
+
+        if (displaySessions.length === 0) {
             container.innerHTML = '<p>No analysis sessions found. Create your first session to get started.</p>';
             return;
         }
 
-        container.innerHTML = this.sessions.map(session => `
-            <div class="session-card" data-session-id="${session._id}" onclick="dashboard.selectSession('${session._id}')">
+        // Check if demo session exists to show/hide demo note
+        const demoSessionExists = this.sessions.some(s => s._id === 'demo-session-1');
+        const demoNote = document.querySelector('.demo-note');
+        if (demoNote) {
+            demoNote.style.display = demoSessionExists ? 'block' : 'none';
+        }
+
+        container.innerHTML = displaySessions.map(session => `
+            <div class="session-card ${session._id === 'demo-session-1' ? 'demo-session' : ''}" data-session-id="${session._id}">
                 <div class="session-header">
-                    <h4>${session.title}</h4>
-                    <span class="priority-badge priority-${session.priority}">${session.priority}</span>
+                    <h4>${session.title}${session._id === 'demo-session-1' ? ' <span class="demo-badge">DEMO</span>' : ''}</h4>
+                    <div class="session-actions">
+                        <span class="priority-badge priority-${session.priority}">${session.priority}</span>
+                        <button class="delete-session-btn" data-session-id="${session._id}" title="Delete session">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="session-meta">
                     <span><i class="fas fa-target"></i> ${session.targetType}</span>
@@ -252,8 +303,27 @@ class AnalysisDashboard {
                     <span>${session.analytics?.totalDataPoints || 0} data points</span>
                     <span>${session.analytics?.toolsUsed || 0} tools used</span>
                 </div>
+                <div class="session-click-area" data-session-id="${session._id}"></div>
             </div>
         `).join('');
+
+        // Add event listeners for session interactions
+        container.addEventListener('click', (e) => {
+            console.log('Session container clicked:', e.target);
+            const sessionId = e.target.closest('[data-session-id]')?.dataset.sessionId;
+            console.log('Session ID found:', sessionId);
+            
+            if (!sessionId) return;
+
+            if (e.target.closest('.delete-session-btn')) {
+                console.log('Delete button clicked for session:', sessionId);
+                e.stopPropagation();
+                this.deleteSession(sessionId);
+            } else if (e.target.closest('.session-click-area')) {
+                console.log('Session clicked:', sessionId);
+                this.selectSession(sessionId);
+            }
+        });
 
         // Add CSS for session cards
         if (!document.getElementById('session-card-styles')) {
@@ -315,13 +385,66 @@ class AnalysisDashboard {
                     font-size: 0.75rem;
                     color: var(--text-secondary);
                 }
+                .session-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+                .delete-session-btn {
+                    background: none;
+                    border: none;
+                    color: var(--danger-color);
+                    cursor: pointer;
+                    padding: 0.25rem;
+                    border-radius: 4px;
+                    transition: all 0.2s ease;
+                    z-index: 10;
+                    position: relative;
+                }
+                .delete-session-btn:hover {
+                    background: var(--danger-color);
+                    color: white;
+                }
+                .session-click-area {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    cursor: pointer;
+                    z-index: 1;
+                }
+                .session-card {
+                    position: relative;
+                }
+                .demo-session {
+                    border: 2px dashed var(--accent-color);
+                    background: rgba(var(--accent-color-rgb), 0.05);
+                }
+                .demo-session:hover {
+                    border-color: var(--accent-color);
+                    background: rgba(var(--accent-color-rgb), 0.1);
+                }
+                .demo-badge {
+                    background: var(--accent-color);
+                    color: white;
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.4rem;
+                    border-radius: 4px;
+                    margin-left: 0.5rem;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
             `;
             document.head.appendChild(style);
         }
     }
 
     selectSession(sessionId) {
+        console.log('Selecting session:', sessionId);
+        console.log('Available sessions:', this.sessions);
         this.currentSession = this.sessions.find(s => s._id === sessionId);
+        console.log('Selected session:', this.currentSession);
         if (!this.currentSession) return;
 
         // Update active session styling
@@ -345,6 +468,8 @@ class AnalysisDashboard {
     }
 
     switchTab(tabName) {
+        console.log('Switching to tab:', tabName);
+        
         // Update tab buttons
         document.querySelectorAll('.tab').forEach(tab => {
             tab.classList.remove('active');
@@ -360,15 +485,19 @@ class AnalysisDashboard {
         // Load content based on tab
         switch (tabName) {
             case 'overview':
+                console.log('Rendering overview');
                 this.renderOverview();
                 break;
             case 'data':
+                console.log('Rendering data points');
                 this.renderDataPoints();
                 break;
             case 'analytics':
+                console.log('Rendering analytics');
                 this.renderAnalytics();
                 break;
             case 'visualizations':
+                console.log('Rendering visualizations');
                 this.renderVisualizations();
                 break;
         }
@@ -560,10 +689,16 @@ class AnalysisDashboard {
         const container = document.getElementById('analyticsContent');
         if (!container || !this.currentSession) return;
 
+        console.log('Rendering analytics for session:', this.currentSession);
+        console.log('Analytics data:', this.currentSession.analytics);
+
         const analytics = this.currentSession.analytics || {};
         const patterns = analytics.patterns || [];
         const timeline = analytics.timeline || [];
         const riskFactors = analytics.riskAssessment?.factors || [];
+
+        console.log('Patterns:', patterns);
+        console.log('Risk factors:', riskFactors);
 
         container.innerHTML = `
             <div class="analytics-grid">
@@ -578,7 +713,7 @@ class AnalysisDashboard {
                                 </li>
                             `).join('')}
                         </ul>
-                    ` : '<p>No patterns detected yet.</p>'}
+                    ` : '<p>No patterns detected yet. Add more data points to see pattern analysis.</p>'}
                 </div>
                 
                 <div class="analytics-section">
@@ -587,7 +722,7 @@ class AnalysisDashboard {
                         <ul class="risk-factors-list">
                             ${riskFactors.map(factor => `<li>${factor}</li>`).join('')}
                         </ul>
-                    ` : '<p>No risk factors identified.</p>'}
+                    ` : '<p>No risk factors identified. Add more data points to see risk assessment.</p>'}
                 </div>
                 
                 <div class="analytics-section">
@@ -687,10 +822,12 @@ class AnalysisDashboard {
         const container = document.getElementById('timelineContainer');
         if (!container || !this.currentSession) return;
 
+        console.log('Rendering timeline for session:', this.currentSession);
         const timeline = this.currentSession.analytics?.timeline || [];
+        console.log('Timeline data:', timeline);
 
         if (timeline.length === 0) {
-            container.innerHTML = '<p>No timeline data available.</p>';
+            container.innerHTML = '<p>No timeline data available. Add data points to see timeline events.</p>';
             return;
         }
 
@@ -709,41 +846,55 @@ class AnalysisDashboard {
         const canvas = document.getElementById('dataDistributionChart');
         if (!canvas || !this.currentSession) return;
 
+        console.log('Rendering data distribution chart for session:', this.currentSession);
         const ctx = canvas.getContext('2d');
         const dataPoints = this.currentSession.dataPoints || [];
+        console.log('Data points:', dataPoints);
 
         // Count data types
         const typeCounts = {};
         dataPoints.forEach(dp => {
             typeCounts[dp.type] = (typeCounts[dp.type] || 0) + 1;
         });
+        console.log('Type counts:', typeCounts);
+
+        if (Object.keys(typeCounts).length === 0) {
+            container.innerHTML = '<p>No data points available for chart visualization.</p>';
+            return;
+        }
 
         if (this.charts.dataDistribution) {
             this.charts.dataDistribution.destroy();
         }
 
-        this.charts.dataDistribution = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(typeCounts),
-                datasets: [{
-                    data: Object.values(typeCounts),
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
+        try {
+            this.charts.dataDistribution = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(typeCounts),
+                    datasets: [{
+                        data: Object.values(typeCounts),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
                     }
                 }
-            }
-        });
+            });
+            console.log('Chart created successfully');
+        } catch (error) {
+            console.error('Error creating chart:', error);
+            container.innerHTML = '<p>Chart could not be rendered. Chart.js may not be available.</p>';
+        }
     }
 
     renderNetworkGraph() {
@@ -881,44 +1032,210 @@ class AnalysisDashboard {
 
         console.log('Validation passed, creating session...');
 
-        // Always use mock session creation since we're in demo mode
-        const mockSession = {
-            _id: Date.now().toString(),
-            ...sessionData,
-            status: 'active',
-            dataPoints: [],
-            analytics: {
-                totalDataPoints: 0,
-                toolsUsed: 0,
-                confidenceScore: 0
-            },
-            metadata: {
-                completenessScore: 0,
-                qualityScore: 0
-            },
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-        
-        console.log('Mock session created:', mockSession);
-        
-        this.sessions.push(mockSession);
-        console.log('Sessions array:', this.sessions);
-        
-        this.renderSessions();
-        this.selectSession(mockSession._id);
-        this.updateStatistics();
-        
-        // Close modal and reset form
-        const modal = document.getElementById('newSessionModal');
-        if (modal) {
-            modal.style.display = 'none';
+        try {
+            const response = await fetch('/api/analysis-sessions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sessionData)
+            });
+
+            if (response.ok) {
+                const newSession = await response.json();
+                this.sessions.push(newSession);
+                console.log('Session created via API:', newSession);
+                
+                this.renderSessions();
+                this.selectSession(newSession._id);
+                this.updateStatistics();
+                
+                // Close modal and reset form
+                const modal = document.getElementById('newSessionModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+                
+                form.reset();
+                
+                alert('Session created successfully!');
+                console.log('Session creation completed');
+            } else {
+                throw new Error(`HTTP ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Error creating session:', error);
+            // Fallback to mock session creation
+            const mockSession = {
+                _id: Date.now().toString(),
+                ...sessionData,
+                status: 'active',
+                dataPoints: [],
+                analytics: {
+                    totalDataPoints: 0,
+                    toolsUsed: 0,
+                    confidenceScore: 0
+                },
+                metadata: {
+                    completenessScore: 0,
+                    qualityScore: 0
+                },
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            console.log('Mock session created:', mockSession);
+            this.sessions.push(mockSession);
+            this.renderSessions();
+            this.selectSession(mockSession._id);
+            this.updateStatistics();
+            
+            // Close modal and reset form
+            const modal = document.getElementById('newSessionModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            
+            form.reset();
+            
+            alert('Session created successfully!');
+            console.log('Session creation completed');
         }
+    }
+
+    async deleteSession(sessionId) {
+        console.log('Delete session called with ID:', sessionId);
         
-        form.reset();
+        let confirmMessage = 'Are you sure you want to delete this session? This action cannot be undone.';
         
-        alert('Session created successfully!');
-        console.log('Session creation completed');
+        if (sessionId === 'demo-session-1') {
+            confirmMessage = 'Are you sure you want to delete the demo session? This will remove the demonstration data. You can always refresh the page to restore it.';
+        }
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        try {
+            // Handle demo session deletion (no API call needed)
+            if (sessionId === 'demo-session-1') {
+                // Remove demo session from local array
+                this.sessions = this.sessions.filter(s => s._id !== sessionId);
+                
+                // If the demo session was selected, clear the selection
+                if (this.currentSession && this.currentSession._id === sessionId) {
+                    this.currentSession = null;
+                    document.getElementById('activeSessionTitle').textContent = 'Select or Create a Session';
+                    document.getElementById('sessionContent').innerHTML = '<p>Select an existing session or create a new one to begin analysis.</p>';
+                }
+                
+                // Hide demo note
+                const demoNote = document.querySelector('.demo-note');
+                if (demoNote) {
+                    demoNote.style.display = 'none';
+                }
+                
+                this.renderSessions();
+                this.updateStatistics();
+                alert('Demo session deleted successfully! You can refresh the page to restore it.');
+                return;
+            }
+
+            // Handle real session deletion
+            const response = await fetch(`/api/analysis-sessions/${sessionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Remove session from local array
+                this.sessions = this.sessions.filter(s => s._id !== sessionId);
+                
+                // If the deleted session was selected, clear the selection
+                if (this.currentSession && this.currentSession._id === sessionId) {
+                    this.currentSession = null;
+                    document.getElementById('activeSessionTitle').textContent = 'Select or Create a Session';
+                    document.getElementById('sessionContent').innerHTML = '<p>Select an existing session or create a new one to begin analysis.</p>';
+                }
+                
+                this.renderSessions();
+                this.updateStatistics();
+                alert('Session deleted successfully!');
+            } else {
+                throw new Error(`HTTP ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Error deleting session:', error);
+            alert('Failed to delete session. Please try again.');
+        }
+    }
+
+    async cleanupTestSessions() {
+        const includeDemo = confirm('Do you want to also delete the demo session? Click "OK" to include it, or "Cancel" to keep it.');
+        
+        if (!confirm('This will delete all test sessions from the database. This action cannot be undone. Continue?')) {
+            return;
+        }
+
+        try {
+            // Get all sessions (include demo if user confirmed)
+            const testSessions = includeDemo ? this.sessions : this.sessions.filter(s => s._id !== 'demo-session-1');
+            
+            if (testSessions.length === 0) {
+                alert('No test sessions to clean up.');
+                return;
+            }
+
+            // Delete each test session
+            for (const session of testSessions) {
+                try {
+                    if (session._id === 'demo-session-1') {
+                        // Demo session doesn't need API call
+                        console.log('Removing demo session from local array');
+                    } else {
+                        const response = await fetch(`/api/analysis-sessions/${session._id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            console.error(`Failed to delete session ${session._id}: ${response.status}`);
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error deleting session ${session._id}:`, error);
+                }
+            }
+
+            // Clear local sessions (keep demo only if not included in cleanup)
+            this.sessions = includeDemo ? [] : this.sessions.filter(s => s._id === 'demo-session-1');
+            
+            // Clear current session if it was deleted
+            if (this.currentSession && testSessions.some(s => s._id === this.currentSession._id)) {
+                this.currentSession = null;
+                document.getElementById('activeSessionTitle').textContent = 'Select or Create a Session';
+                document.getElementById('sessionContent').innerHTML = '<p>Select an existing session or create a new one to begin analysis.</p>';
+            }
+            
+            // Hide demo note if demo session was included in cleanup
+            if (includeDemo) {
+                const demoNote = document.querySelector('.demo-note');
+                if (demoNote) {
+                    demoNote.style.display = 'none';
+                }
+            }
+            
+            this.renderSessions();
+            this.updateStatistics();
+            alert(`Successfully cleaned up ${testSessions.length} test session(s).`);
+        } catch (error) {
+            console.error('Error during cleanup:', error);
+            alert('Error during cleanup. Please try again.');
+        }
     }
 
     async addDataPoint() {
@@ -1005,10 +1322,21 @@ class AnalysisDashboard {
     }
 
     updateStatistics() {
-        const totalSessions = this.sessions.filter(s => s.status === 'active').length;
-        const totalDataPoints = this.sessions.reduce((sum, s) => sum + (s.analytics?.totalDataPoints || 0), 0);
+        // Filter out demo session and test sessions from statistics
+        const nonDemoSessions = this.sessions.filter(s => 
+            s._id !== 'demo-session-1' && 
+            !s.title.includes('Test') && 
+            !s.title.includes('test') &&
+            !s.title.includes('Demo')
+        );
+        
+        console.log('All sessions:', this.sessions.map(s => ({ id: s._id, title: s.title, status: s.status })));
+        console.log('Non-demo sessions:', nonDemoSessions.map(s => ({ id: s._id, title: s.title, status: s.status })));
+        
+        const totalSessions = nonDemoSessions.filter(s => s.status === 'active').length;
+        const totalDataPoints = nonDemoSessions.reduce((sum, s) => sum + (s.analytics?.totalDataPoints || 0), 0);
         const toolsUsed = new Set();
-        this.sessions.forEach(s => {
+        nonDemoSessions.forEach(s => {
             (s.dataPoints || []).forEach(dp => {
                 if (dp.source?.tool) toolsUsed.add(dp.source.tool);
             });
@@ -1016,16 +1344,25 @@ class AnalysisDashboard {
 
         let avgConfidence = 0;
         if (totalDataPoints > 0) {
-            const totalConfidence = this.sessions.reduce((sum, s) => {
+            const totalConfidence = nonDemoSessions.reduce((sum, s) => {
                 return sum + (s.dataPoints || []).reduce((dpSum, dp) => dpSum + (dp.confidence || 0), 0);
             }, 0);
             avgConfidence = Math.round(totalConfidence / totalDataPoints);
         }
 
+        console.log('Statistics calculated:', { totalSessions, totalDataPoints, toolsUsed: toolsUsed.size, avgConfidence });
+
         document.getElementById('totalSessions').textContent = totalSessions;
         document.getElementById('totalDataPoints').textContent = totalDataPoints;
         document.getElementById('toolsUsed').textContent = toolsUsed.size;
         document.getElementById('avgConfidence').textContent = `${avgConfidence}%`;
+        
+        // Show/hide demo exclusion notes based on whether demo session exists
+        const demoSessionExists = this.sessions.some(s => s._id === 'demo-session-1');
+        const statNotes = document.querySelectorAll('.stat-note');
+        statNotes.forEach(note => {
+            note.style.display = demoSessionExists ? 'block' : 'none';
+        });
     }
 
     getConfidenceClass(confidence) {

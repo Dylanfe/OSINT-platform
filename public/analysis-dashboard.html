@@ -357,6 +357,13 @@
             letter-spacing: 0.5px;
         }
         
+        .stat-note {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+        
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -895,6 +902,9 @@
                 <button class="btn btn-secondary" id="exportReportBtn">
                     <i class="fas fa-download"></i> Export Report
                 </button>
+                <button class="btn btn-secondary" id="cleanupBtn" style="background: var(--danger-color); color: white;">
+                    <i class="fas fa-trash"></i> Cleanup Test Sessions
+                </button>
                 <button class="btn btn-primary" id="newSessionBtn">
                     <i class="fas fa-plus"></i> New Session
                 </button>
@@ -906,18 +916,22 @@
             <div class="stat-card">
                 <div class="stat-value" id="totalSessions">0</div>
                 <div class="stat-label">Active Sessions</div>
+                <div class="stat-note">(Demo session excluded)</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="totalDataPoints">0</div>
                 <div class="stat-label">Data Points</div>
+                <div class="stat-note">(Demo session excluded)</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="toolsUsed">0</div>
                 <div class="stat-label">Tools Used</div>
+                <div class="stat-note">(Demo session excluded)</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="avgConfidence">0%</div>
                 <div class="stat-label">Avg Confidence</div>
+                <div class="stat-note">(Demo session excluded)</div>
             </div>
         </div>
 
@@ -931,6 +945,13 @@
                 
                 <div class="sessions-list" id="sessionsList">
                     <!-- Sessions will be populated here -->
+                </div>
+                
+                <div class="demo-note" style="margin-top: 1rem; padding: 0.75rem; background: rgba(var(--accent-color-rgb), 0.1); border-radius: 8px; border-left: 4px solid var(--accent-color);">
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--text-secondary);">
+                        <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
+                        The <strong>Demo Analysis Session</strong> is for demonstration purposes only. It contains sample data and is excluded from all statistics. You can delete it if you don't need it.
+                    </p>
                 </div>
             </div>
 
